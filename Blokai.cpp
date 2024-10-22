@@ -7,12 +7,20 @@ struct Vartotojas {
     int balansas;
 };
 
+struct Transakcija {
+    string transakcijos_id;
+    string siuntejo_viesasis_raktas;
+    string gavejo_viesasis_raktas;
+    int suma;
+};
+
 string randomVardas() {
     vector<string> var = {"Tomas", "Andrius", "Algirdas", "Lukas", "Povilas", "Vilius", "Justinas", "Martynas", "Kestutis", "Juozas",
     "Julius", "Rimvydas", "Darius", "Vytis", "Egidijus", "Karolis", "Simonas", "Deividas", "Dominykas", "Edgaras", "Aurimas", "Ricardas", 
     "Paulius", "Arvydas", "Antanas", "Jurgis", "Adomas", "Gediminas", "Arturas", "Eimantas", "Raimondas", "Arnas", "Eugenijus", "Kostas", 
     "Birute", "Irena", "Rasa", "Asta", "Lina", "Diana", "Jolanta", "Agne", "Egle", "Inga", "Dovile", "Gabija", "Greta", "Monika", "Vaida", 
     "Viktorija", "Sandra", "Aurelija", "Rima", "Laima", "Neringa", "Renata", "Justina", "Kristina", "Agne", "Ieva", "Indre", "Marija"};
+
     vector<string> pav = {"Kazlauskas", "Petrauskas", "Jankauskas", "Zukauskas", "Pavardenis", "Butkus", "Vasiliauskas",
     "Urbonas", "Jonaitis", "Brazaitis", "Balciunas", "Tamulionis", "Kairys", "Saulys", "Grigas", "Vaitkus", "Stankevicius", "Dauksys", 
     "Navickas", "Zilinskas", "Mockus", "Sernas", "Leipus","Vilkas", "Kavaliauskas", "Rimkus", "Matulis", "Sakalauskas", "Girdvainis", "Simutis"};
@@ -24,8 +32,11 @@ string randomVardas() {
 
 int main() {
     ofstream fail("Vartotojai.txt");
+    ofstream failas("Transakcijos.txt");
     srand(time(0));
     
+    /////VARTOTOJAI/////
+
     vector<Vartotojas> vartotojai;
     
     for (int i = 0; i < 1000; i++) {
@@ -35,7 +46,7 @@ int main() {
         
         vartotojai.push_back({vardas, viesasis_raktas, balansas});
     }
-    
+
     for (const auto& vartotojas : vartotojai) {
         fail << "Vardas: " << vartotojas.vardas << endl;
         fail << "Viesasis raktas: " << vartotojas.viesasis_raktas << endl;
@@ -43,6 +54,31 @@ int main() {
         fail << "" << endl;
     }
 
+    /////TRANSAKCIJOS/////
+
+    vector<Transakcija> transakcijos;
+
+    for (int i = 0; i < 10000; i++) {
+        string siuntejo_viesasis_raktas;
+        string gavejo_viesasis_raktas;
+        int suma;
+
+        // Cia ne pilnas
+        string transakcijos_id = hashFunkcija(siuntejo_viesasis_raktas + gavejo_viesasis_raktas + to_string(suma));
+        
+        transakcijos.push_back({transakcijos_id, siuntejo_viesasis_raktas, gavejo_viesasis_raktas, suma});
+    }
+
+    for (const auto& transakcija : transakcijos) {
+        failas << "Transakcijos ID: " << transakcija.transakcijos_id << endl;
+        failas << "Siuntejo viesasis raktas: " << transakcija.siuntejo_viesasis_raktas << endl;
+        failas << "Gavejo viesasis raktas: " << transakcija.gavejo_viesasis_raktas << endl;
+        failas << "Suma: " << transakcija.suma << endl;
+        failas << "" << endl;
+    }
+
     fail.close();
+    failas.close();
+
     return 0;
 }
