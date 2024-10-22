@@ -59,13 +59,29 @@ int main() {
     vector<Transakcija> transakcijos;
 
     for (int i = 0; i < 10000; i++) {
-        string siuntejo_viesasis_raktas;
-        string gavejo_viesasis_raktas;
-        int suma;
-
-        // Cia ne pilnas
-        string transakcijos_id = hashFunkcija(siuntejo_viesasis_raktas + gavejo_viesasis_raktas + to_string(suma));
         
+        // Siuntejas ir jo viesasis raktas
+        int siuntejas;
+        do {
+            siuntejas = rand() % vartotojai.size();
+        } while (vartotojai[siuntejas].balansas < 1);
+
+        string siuntejo_viesasis_raktas = vartotojai[siuntejas].viesasis_raktas;
+
+        // Gavejas ir jo viesasis raktas
+        int gavejas;
+        do {
+            gavejas = rand() % vartotojai.size();
+        } while (siuntejas == gavejas);
+
+        string gavejo_viesasis_raktas = vartotojai[gavejas].viesasis_raktas;
+
+        // Suma, kuri yra pervedama
+        int suma = rand() % (static_cast<int>(vartotojai[siuntejas].balansas) - 100 + 1) + 100;
+
+        // Transakcijos unikalusis kodas
+        string transakcijos_id = hashFunkcija(siuntejo_viesasis_raktas + gavejo_viesasis_raktas + to_string(suma));
+
         transakcijos.push_back({transakcijos_id, siuntejo_viesasis_raktas, gavejo_viesasis_raktas, suma});
     }
 
