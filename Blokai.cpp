@@ -109,12 +109,26 @@ int main() {
         isrinktos_transakcijos.push_back(transakcijos[random100transakciju]);
     }
 
+    Blokas naujas_blokas;
+    naujas_blokas.bloko_id = "bloko_id_kazkoks kolkas";
+    naujas_blokas.transakcijos = isrinktos_transakcijos;
+
+    // Pridedame naujus blokus i bloku sarasa
+    blokai.push_back(naujas_blokas);
+
     for (const auto& blokas : blokai) {
         failiukas << "Bloko ID: " << blokas.bloko_id << endl;
         failiukas << "Transakcijos: " << endl;
-        failiukas << "" << endl;
+        failiukas << "_______________________________________________________________________________________" << endl;
+        failiukas << " " << endl;
+        for (const auto& tr : blokas.transakcijos) {
+            failiukas << "Transakcijos ID: " << tr.transakcijos_id << endl;
+            failiukas << "Siuntejo viesasis raktas: " << tr.siuntejo_viesasis_raktas << endl;
+            failiukas << "Gavejo viesasis raktas: " << tr.gavejo_viesasis_raktas << endl;
+            failiukas << "Suma: " << tr.suma << endl;
+            failiukas << "" << endl;
+        }
     }
-
 
     fail.close();
     failas.close();
