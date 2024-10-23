@@ -103,14 +103,21 @@ int main() {
 
     vector<Blokas> blokai;
     vector<Transakcija> isrinktos_transakcijos;
+    vector<string> transakciju_unikalus_kodas;
     
     for (int i = 0; i < 100; i++) {
         int random100transakciju = rand() % transakcijos.size();
         isrinktos_transakcijos.push_back(transakcijos[random100transakciju]);
+        transakciju_unikalus_kodas.push_back(transakcijos[random100transakciju].transakcijos_id);
+    }
+
+    string sujungtasTransakcijuID;
+    for (const auto& id : transakciju_unikalus_kodas) {
+        sujungtasTransakcijuID += id;
     }
 
     Blokas naujas_blokas;
-    naujas_blokas.bloko_id = "bloko_id_kazkoks kolkas";
+    naujas_blokas.bloko_id = hashFunkcija(sujungtasTransakcijuID);
     naujas_blokas.transakcijos = isrinktos_transakcijos;
 
     // Pridedame naujus blokus i bloku sarasa
