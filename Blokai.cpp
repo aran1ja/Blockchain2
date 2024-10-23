@@ -14,6 +14,11 @@ struct Transakcija {
     int suma;
 };
 
+struct Blokas {
+    string bloko_id;
+    vector<Transakcija> transakcijos;
+};
+
 string randomVardas() {
     vector<string> var = {"Tomas", "Andrius", "Algirdas", "Lukas", "Povilas", "Vilius", "Justinas", "Martynas", "Kestutis", "Juozas",
     "Julius", "Rimvydas", "Darius", "Vytis", "Egidijus", "Karolis", "Simonas", "Deividas", "Dominykas", "Edgaras", "Aurimas", "Ricardas", 
@@ -33,6 +38,7 @@ string randomVardas() {
 int main() {
     ofstream fail("Vartotojai.txt");
     ofstream failas("Transakcijos.txt");
+    ofstream failiukas("Blokai.txt");
     srand(time(0));
     
     /////VARTOTOJAI/////
@@ -93,8 +99,26 @@ int main() {
         failas << "" << endl;
     }
 
+    /////BLOKAI/////
+
+    vector<Blokas> blokai;
+    vector<Transakcija> isrinktos_transakcijos;
+    
+    for (int i = 0; i < 100; i++) {
+        int random100transakciju = rand() % transakcijos.size();
+        isrinktos_transakcijos.push_back(transakcijos[random100transakciju]);
+    }
+
+    for (const auto& blokas : blokai) {
+        failiukas << "Bloko ID: " << blokas.bloko_id << endl;
+        failiukas << "Transakcijos: " << endl;
+        failiukas << "" << endl;
+    }
+
+
     fail.close();
     failas.close();
+    failiukas.close();
 
     return 0;
 }
