@@ -38,7 +38,7 @@ string randomVardas() {
 
     /////VARTOTOJAI/////
 
-void generuotiVartotojus(vector<Vartotojas> vartotojai, ofstream fail) {
+void generuotiVartotojus(vector<Vartotojas>& vartotojai, ofstream& fail) {
     for (int i = 0; i < 1000; i++) {
         string vardas = randomVardas();
         string viesasis_raktas = hashFunkcija(vardas + to_string(i));
@@ -53,11 +53,12 @@ void generuotiVartotojus(vector<Vartotojas> vartotojai, ofstream fail) {
         fail << "Balansas: " << vartotojas.balansas << endl;
         fail << "" << endl;
     }
+    fail.close();
 }
 
     /////TRANSAKCIJOS/////
 
-void generuotiTransakcijas(vector<Transakcija> transakcijos, vector<Vartotojas> vartotojai, ofstream failas) {
+void generuotiTransakcijas(vector<Transakcija>& transakcijos, vector<Vartotojas>& vartotojai, ofstream& failas) {
     for (int i = 0; i < 10000; i++) {
         
         // Siuntejas ir jo viesasis raktas
@@ -108,11 +109,12 @@ void generuotiTransakcijas(vector<Transakcija> transakcijos, vector<Vartotojas> 
         failas << "Suma: " << transakcija.suma << endl;
         failas << "" << endl;
     }
+    failas.close();
 }
 
     /////BLOKAI/////
 
-void generuotiBlokus(vector<Blokas> blokai, vector<Transakcija> transakcijos, ofstream failiukas) {
+void generuotiBlokus(vector<Blokas>& blokai, vector<Transakcija>& transakcijos, ofstream& failiukas) {
     vector<Transakcija> isrinktos_transakcijos;
     vector<string> transakciju_unikalus_kodas;
     
@@ -147,6 +149,7 @@ void generuotiBlokus(vector<Blokas> blokai, vector<Transakcija> transakcijos, of
             failiukas << "" << endl;
         }
     }
+    failiukas.close();
 }
 
 void issaugotiBalansus(vector<Vartotojas>& vartotojai) {
@@ -157,20 +160,44 @@ void issaugotiBalansus(vector<Vartotojas>& vartotojai) {
         balansu_failas << "Balansas: " << vartotojas.balansas << endl;
         balansu_failas << "" << endl;
     }
+    balansu_failas.close();
 }
 
 int main() {
-
+    srand(time(0));
+    vector<Vartotojas> vartotojai;
+    vector<Transakcija> transakcijos;
+    vector<Blokas> blokai;
     ofstream fail("Vartotojai.txt");
     ofstream failas("Transakcijos.txt");
     ofstream failiukas("Blokai.txt");
-    srand(time(0));
+    char pasirinkimas;
     
+    cout << "Ar norite generuoti naujus vartotojus, transakcijas ir blokus? (t/n): ";
+    cin >> pasirinkimas;
 
+    if (pasirinkimas == 't') {
+        ofstream fail("Vartotojai.txt");
+        ofstream failas("Transakcijos.txt");
+        ofstream failiukas("Blokai.txt");
 
-    fail.close();
-    failas.close();
-    failiukas.close();
+        generuotiVartotojus(vartotojai, fail);
+        generuotiTransakcijas(transakcijos, vartotojai, failas);
+        generuotiBlokus(blokai, transakcijos, failiukas);
+
+        fail.close();
+        failas.close();
+        failiukas.close();
+    } else {
+        cout << "Naudojami esami failai (Vartotojai.txt, Transakcijos.txt, Blokai.txt)." << endl;
+        
+        // Nepilnaas - reikia dar parasyti funkcijas:
+        // nuskaitytiVartotojus(vartotojai);
+        // nuskaitytiTransakcijas(transakcijos);
+        // nuskaitytiBlokus(blokai);
+    }
+
+    issaugotiBalansus(vartotojai);
 
     return 0;
 }
