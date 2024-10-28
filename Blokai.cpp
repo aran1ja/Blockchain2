@@ -114,7 +114,24 @@ void generuotiTransakcijas(vector<Transakcija>& transakcijos, vector<Vartotojas>
 
     /////BLOKAI/////
 
+const int DifficultyTarget = 2;
+
+int pridetiNonce(Blokas& blokas) {
+    int nonce = 0;
+    string hashas;
+    for (int i = 0; i < DifficultyTarget; i++) {
+        nonce++;
+        hashas = hashFunkcija(blokas.bloko_id + to_string(nonce));
+    }
+
+    blokas.nonce = nonce;
+    blokas.bloko_id = hashas;
+    return nonce;
+}
+
 void generuotiBlokus(vector<Blokas>& blokai, vector<Transakcija>& transakcijos, ofstream& failiukas) {
+    // Generuojame 10 bloku
+    for (int i = 0; i < 10; i++) {
     vector<Transakcija> isrinktos_transakcijos;
     vector<string> transakciju_unikalus_kodas;
     
@@ -133,15 +150,18 @@ void generuotiBlokus(vector<Blokas>& blokai, vector<Transakcija>& transakcijos, 
     naujas_blokas.bloko_id = hashFunkcija(sujungtasTransakcijuID);
     naujas_blokas.transakcijos = isrinktos_transakcijos;
 
+    failiukas << "Iskastas blokas " << (i + 1) << endl;
+    pridetiNonce(naujas_blokas);
+
     // Pridedame naujus blokus i bloku sarasa
     blokai.push_back(naujas_blokas);
 
-    for (const auto& blokas : blokai) {
-        failiukas << "Bloko ID: " << blokas.bloko_id << endl;
+        failiukas << "Bloko ID: " << naujas_blokas.bloko_id << endl;
+        failiukas << "Nonce: " << naujas_blokas.nonce << endl;
         failiukas << "Transakcijos: " << endl;
         failiukas << "_______________________________________________________________________________________" << endl;
         failiukas << " " << endl;
-        for (const auto& tr : blokas.transakcijos) {
+        for (const auto& tr : naujas_blokas.transakcijos) {
             failiukas << "Transakcijos ID: " << tr.transakcijos_id << endl;
             failiukas << "Siuntejo viesasis raktas: " << tr.siuntejo_viesasis_raktas << endl;
             failiukas << "Gavejo viesasis raktas: " << tr.gavejo_viesasis_raktas << endl;
@@ -226,21 +246,6 @@ void nuskaitytiBlokus(vector<Blokas>& blokai) {
     }
 
     fail.close();
-}
-
-const int DifficultyTarget = 2;
-
-int pridetiNonce(Blokas& blokas) {
-    int nonce = 0;
-    string hashas;
-    if (int i = 0; i < DifficultyTarget, i++) {
-        nonce++;
-        hashas = hashFunkcija(blokas.bloko_id + to_string(nonce));
-    }
-
-    blokas.nonce = nonce;
-    blokas.bloko_id = hashas;
-    return nonce;
 }
 
 int main() {
