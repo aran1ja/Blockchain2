@@ -114,15 +114,15 @@ void generuotiTransakcijas(vector<Transakcija>& transakcijos, vector<Vartotojas>
 
     /////BLOKAI/////
 
-const int DifficultyTarget = 2;
+const int DifficultyTarget = 1;
 
 int pridetiNonce(Blokas& blokas) {
     int nonce = 0;
     string hashas;
-    for (int i = 0; i < DifficultyTarget; i++) {
+    do {
         nonce++;
         hashas = hashFunkcija(blokas.bloko_id + to_string(nonce));
-    }
+    } while (hashas.substr(0, DifficultyTarget) != string(DifficultyTarget, '0'));
 
     blokas.nonce = nonce;
     blokas.bloko_id = hashas;
@@ -130,15 +130,17 @@ int pridetiNonce(Blokas& blokas) {
 }
 
 void generuotiBlokus(vector<Blokas>& blokai, vector<Transakcija>& transakcijos, ofstream& failiukas) {
-    // Generuojame 10 bloku
-    for (int i = 0; i < 10; i++) {
+    // Generuojame 100 bloku
+    for (int i = 0; i < 100; i++) {
     vector<Transakcija> isrinktos_transakcijos;
     vector<string> transakciju_unikalus_kodas;
     
-    for (int i = 0; i < 100; i++) {
+    for (int j = 0; j < 100; j++) {
         int random100transakciju = rand() % transakcijos.size();
         isrinktos_transakcijos.push_back(transakcijos[random100transakciju]);
         transakciju_unikalus_kodas.push_back(transakcijos[random100transakciju].transakcijos_id);
+        // Pasalinama transakcija, kuri jau buvo panaudota. Tam, kad nenaudoti ja kelis kartus
+        transakcijos.erase(transakcijos.begin() + random100transakciju);
     }
 
     string sujungtasTransakcijuID;
