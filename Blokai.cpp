@@ -163,19 +163,82 @@ void issaugotiBalansus(vector<Vartotojas>& vartotojai) {
     balansu_failas.close();
 }
 
+// NUSKAITOMI VARTOTOJAI //
+void nuskaitytiVartotojus(vector<Vartotojas>& vartotojai) {
+    ifstream fail("Vartotojai.txt");
+    if (!fail.is_open()) {
+        cout << "Nepavyko atidaryti 'Vartotojai.txt' failo." << endl;
+        return;
+    }
+
+    Vartotojas vartotojas;
+    while (getline(fail, vartotojas.vardas)) {
+        getline(fail, vartotojas.viesasis_raktas);
+        fail >> vartotojas.balansas;
+        fail.ignore();
+        vartotojai.push_back(vartotojas);
+    }
+
+    fail.close();
+}
+
+// NUSKAITOMOS TRANSAKCIJOS //
+void nuskaitytiTransakcijas(vector<Transakcija>& transakcijos) {
+    ifstream fail("Transakcijos.txt");
+    if (!fail.is_open()) {
+        cout << "Nepavyko atidaryti 'Transakcijos.txt' failo." << endl;
+        return;
+    }
+
+    Transakcija transakcija;
+    while (getline(fail, transakcija.transakcijos_id)) {
+        getline(fail, transakcija.siuntejo_viesasis_raktas);
+        getline(fail, transakcija.gavejo_viesasis_raktas);
+        fail >> transakcija.suma;
+        fail.ignore();
+        transakcijos.push_back(transakcija);
+    }
+
+    fail.close();
+}
+
+// NUSKAITOMI BLOKAI //
+void nuskaitytiBlokus(vector<Blokas>& blokai) {
+    ifstream fail("Blokai.txt");
+    if (!fail.is_open()) {
+        cout << "Nepavyko atidaryti 'Blokai.txt' failo." << endl;
+        return;
+    }
+
+    Blokas blokas;
+    while (getline(fail, blokas.bloko_id)) {
+        string line;
+        while (getline(fail, line) && !line.empty()) {
+            Transakcija transakcija;
+            transakcija.transakcijos_id = line;
+            getline(fail, transakcija.siuntejo_viesasis_raktas);
+            getline(fail, transakcija.gavejo_viesasis_raktas);
+            fail >> transakcija.suma;
+            fail.ignore();
+            blokas.transakcijos.push_back(transakcija);
+        }
+        blokai.push_back(blokas);
+    }
+
+    fail.close();
+}
+
 int main() {
     srand(time(0));
     vector<Vartotojas> vartotojai;
     vector<Transakcija> transakcijos;
     vector<Blokas> blokai;
-    ofstream fail("Vartotojai.txt");
-    ofstream failas("Transakcijos.txt");
-    ofstream failiukas("Blokai.txt");
     char pasirinkimas;
     
     cout << "Ar norite generuoti naujus vartotojus, transakcijas ir blokus? (t/n): ";
     cin >> pasirinkimas;
 
+    // Blogai rodo naujus balansus jeigu leisti dar karta ta pati
     if (pasirinkimas == 't') {
         ofstream fail("Vartotojai.txt");
         ofstream failas("Transakcijos.txt");
@@ -184,20 +247,18 @@ int main() {
         generuotiVartotojus(vartotojai, fail);
         generuotiTransakcijas(transakcijos, vartotojai, failas);
         generuotiBlokus(blokai, transakcijos, failiukas);
+        issaugotiBalansus(vartotojai);
 
         fail.close();
         failas.close();
         failiukas.close();
     } else {
         cout << "Naudojami esami failai (Vartotojai.txt, Transakcijos.txt, Blokai.txt)." << endl;
-        
-        // Nepilnaas - reikia dar parasyti funkcijas:
-        // nuskaitytiVartotojus(vartotojai);
-        // nuskaitytiTransakcijas(transakcijos);
-        // nuskaitytiBlokus(blokai);
+        nuskaitytiVartotojus(vartotojai);
+        nuskaitytiTransakcijas(transakcijos);
+        nuskaitytiBlokus(blokai);
+        issaugotiBalansus(vartotojai);
     }
-
-    issaugotiBalansus(vartotojai);
 
     return 0;
 }
