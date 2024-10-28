@@ -17,6 +17,7 @@ struct Transakcija {
 struct Blokas {
     string bloko_id;
     vector<Transakcija> transakcijos;
+    int nonce;
 };
 
 string randomVardas() {
@@ -83,10 +84,14 @@ int main() {
         string gavejo_viesasis_raktas = vartotojai[gavejas].viesasis_raktas;
 
         // Suma, kuri yra pervedama
-        int suma = rand() % (static_cast<int>(vartotojai[siuntejas].balansas) - 100 + 1) + 100;
+        int suma = rand() % 10000 + 1;
 
         // Transakcijos unikalusis kodas
         string transakcijos_id = hashFunkcija(siuntejo_viesasis_raktas + gavejo_viesasis_raktas + to_string(suma));
+
+        // Pakeiciame siunteju ir gaveju balansus
+        vartotojai[siuntejas].balansas -= suma;
+        vartotojai[gavejas].balansas += suma;
 
         transakcijos.push_back({transakcijos_id, siuntejo_viesasis_raktas, gavejo_viesasis_raktas, suma});
     }
