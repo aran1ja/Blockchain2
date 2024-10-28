@@ -228,6 +228,21 @@ void nuskaitytiBlokus(vector<Blokas>& blokai) {
     fail.close();
 }
 
+const int DifficultyTarget = 2;
+
+int pridetiNonce(Blokas& blokas) {
+    int nonce = 0;
+    string hashas;
+    if (int i = 0; i < DifficultyTarget, i++) {
+        nonce++;
+        hashas = hashFunkcija(blokas.bloko_id + to_string(nonce));
+    }
+
+    blokas.nonce = nonce;
+    blokas.bloko_id = hashas;
+    return nonce;
+}
+
 int main() {
     srand(time(0));
     vector<Vartotojas> vartotojai;
