@@ -13,12 +13,19 @@
 using namespace std;
 
 struct Vartotojas {
+    public: 
+
+    Vartotojas(string v, string r, int b) : vardas(v), viesasis_raktas(r), balansas(b) {}
     string vardas;
     string viesasis_raktas;
     int balansas;
 };
 
 struct Transakcija {
+    public:
+
+    Transakcija(string id, string siuntejo, string gavejo, int s) 
+        : transakcijos_id(id), siuntejo_viesasis_raktas(siuntejo), gavejo_viesasis_raktas(gavejo), suma(s) {}
     string transakcijos_id;
     string siuntejo_viesasis_raktas;
     string gavejo_viesasis_raktas;
@@ -26,8 +33,13 @@ struct Transakcija {
 };
 
 struct Blokas {
+    public: 
+    
+    Blokas(string id) : bloko_id(id), nonce(0) {}
     string bloko_id;
     vector<Transakcija> transakcijos;
+
+    private:
     int nonce;
 };
 
