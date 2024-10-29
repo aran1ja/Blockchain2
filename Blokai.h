@@ -391,3 +391,79 @@ void nuskaitytiBlokus(vector<Blokas>& blokai) {
 
     fail.close();
 }
+
+void rastiTransakcija(const vector<Transakcija>& transakcijos, const vector<Blokas>& blokai, const string& id) {
+    auto it = find_if(transakcijos.begin(), transakcijos.end(), [&](const Transakcija& t) {
+        return t.transakcijos_id == id;
+    });
+
+    if (it != transakcijos.end()) {
+        const Transakcija& transakcija = *it; 
+        cout << "Transakcijos ID: " << transakcija.transakcijos_id << endl;
+        cout << "Siuntejo viesasis raktas: " << transakcija.siuntejo_viesasis_raktas << endl;
+        cout << "Gavejo viesasis raktas: " << transakcija.gavejo_viesasis_raktas << endl;
+        cout << "Suma: " << transakcija.suma << endl << endl;
+        return; 
+    }
+
+    for (const auto& blokas : blokai) {
+        auto tr_it = find_if(blokas.transakcijos.begin(), blokas.transakcijos.end(), [&](const Transakcija& t) {
+            return t.transakcijos_id == id;
+        });
+        if (tr_it != blokas.transakcijos.end()) {
+            const Transakcija& transakcija = *tr_it; 
+            cout << "Bloko ID: " << blokas.bloko_id << endl; 
+            cout << "Transakcijos ID: " << transakcija.transakcijos_id << endl;
+            cout << "Siuntejo viesasis raktas: " << transakcija.siuntejo_viesasis_raktas << endl;
+            cout << "Gavejo viesasis raktas: " << transakcija.gavejo_viesasis_raktas << endl;
+            cout << "Suma: " << transakcija.suma << endl << endl;
+            return; 
+        }
+    }
+    cout << "Transakcija su tokiu ID nerasta." << endl;
+}
+
+void rastiBloka(const vector<Blokas>& blokai, const string& id) {
+    auto it = find_if(blokai.begin(), blokai.end(), [&](const Blokas& b) {
+        return b.bloko_id == id;
+    });
+    if (it != blokai.end()) {
+        const Blokas& blokas = *it; 
+        cout << "Bloko ID: " << blokas.bloko_id << endl;
+        cout << "Nonce: " << blokas.nonce << endl;
+        cout << "Transakcijos:" << endl;
+        for (const auto& tr : blokas.transakcijos) {
+            cout << "  Transakcijos ID: " << tr.transakcijos_id << endl;
+            cout << "  Siuntejo viesasis raktas: " << tr.siuntejo_viesasis_raktas << endl;
+            cout << "  Gavejo viesasis raktas: " << tr.gavejo_viesasis_raktas << endl;
+            cout << "  Suma: " << tr.suma << endl;
+            cout << " " << endl;
+        }
+    } else {
+        cout << "Blokas su tokiu ID nerastas." << endl;
+    }
+}
+
+void ekranas(const vector<Blokas>& blokai, const vector<Transakcija>& transakcijos) {
+        int pasirinkimas; 
+
+        while (true) {
+        cout << "Pasirinkite viena veiksma is nurodytu zemiau." << endl;
+        cout << "1. Ieskoti transakcijos pagal ID." << endl;
+        cout << "2. Ieskoti bloko pagal ID." << endl;
+        cout << "Bet koks kitas sakicius baigia programa." << endl;
+        cout << "Jusu pasirinkimas: "; cin >> pasirinkimas;
+
+        if (pasirinkimas == 1) {
+            cout << "Iveskite transakcijos ID: ";
+            string transakcijos_id;
+            cin >> transakcijos_id;
+            rastiTransakcija(transakcijos, blokai, transakcijos_id);
+        } else if (pasirinkimas == 2) {
+            cout << "Iveskite bloko ID: ";
+            string bloko_id;
+            cin >> bloko_id;
+            rastiBloka(blokai, bloko_id);
+        } else break;    
+    }
+}

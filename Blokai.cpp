@@ -7,6 +7,7 @@ int main() {
     vector<Transakcija> transakcijos;
     vector<Blokas> blokai;
     char pasirinkimas;
+
     
     cout << "Ar norite generuoti naujus vartotojus, transakcijas? (t/n): ";
     cin >> pasirinkimas;
@@ -22,12 +23,13 @@ int main() {
         generuotiTransakcijas(transakcijos, vartotojai, failas);
         cout << "Bloku generavimas prasideda..." << endl;
         generuotiBlokus(blokai, transakcijos, failiukas);
+        cout << "Atnaujinami balansai..." << endl;
         atnaujintiBalansus(vartotojai, blokai);
+        ekranas(blokai, transakcijos);
 
         fail.close();
         failas.close();
         failiukas.close();
     } 
-
     return 0;
 }
