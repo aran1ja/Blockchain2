@@ -79,6 +79,14 @@ class Blokas {
     const vector<Transakcija>& getTransakcijos() const { return transakcijos; }
     int getNonce() const { return nonce; }
     void setNonce(int newNonce) { nonce = newNonce; }
+
+    void setBlokoId(const string& id) {
+        bloko_id = id;
+    }
+
+    void setTransakcijos(const std::vector<Transakcija>& trans) {
+        transakcijos = trans; 
+    }
 };
 
 string randomVardas() {
@@ -200,9 +208,9 @@ void generuotiVartotojus(vector<Vartotojas>& vartotojai, ofstream& fail) {
     }
 
     for (const auto& vartotojas : vartotojai) {
-        fail << "Vardas: " << vartotojas.vardas << endl;
-        fail << "Viesasis raktas: " << vartotojas.viesasis_raktas << endl;
-        fail << "Balansas: " << vartotojas.balansas << endl;
+        fail << "Vardas: " << vartotojas.getVardas() << endl;
+        fail << "Viesasis raktas: " << vartotojas.getViesasisRaktas() << endl;
+        fail << "Balansas: " << vartotojas.getBalansas() << endl;
         fail << "" << endl;
     }
     fail.close();
@@ -217,9 +225,9 @@ void generuotiTransakcijas(vector<Transakcija>& transakcijos, vector<Vartotojas>
         int siuntejas;
         do {
             siuntejas = rand() % vartotojai.size();
-        } while (vartotojai[siuntejas].balansas < 1);
+        } while (vartotojai[siuntejas].getBalansas() < 1);
 
-        string siuntejo_viesasis_raktas = vartotojai[siuntejas].viesasis_raktas;
+        string siuntejo_viesasis_raktas = vartotojai[siuntejas].getViesasisRaktas();
 
         // Gavejas ir jo viesasis raktas
         int gavejas;
@@ -227,7 +235,7 @@ void generuotiTransakcijas(vector<Transakcija>& transakcijos, vector<Vartotojas>
             gavejas = rand() % vartotojai.size();
         } while (siuntejas == gavejas);
 
-        string gavejo_viesasis_raktas = vartotojai[gavejas].viesasis_raktas;
+        string gavejo_viesasis_raktas = vartotojai[gavejas].getViesasisRaktas();
 
         // Suma, kuri yra pervedama
         int suma;
@@ -237,7 +245,7 @@ void generuotiTransakcijas(vector<Transakcija>& transakcijos, vector<Vartotojas>
         string transakcijos_id = hashFunkcija(siuntejo_viesasis_raktas + gavejo_viesasis_raktas + to_string(suma));
 
         // Patikriname, ar uztenka siuntejo balanso transakcijai vykdyti
-        if (suma > vartotojai[siuntejas].balansas || vartotojai[siuntejas].balansas <= 0) {
+        if (suma > vartotojai[siuntejas].getBalansas() || vartotojai[siuntejas].getBalansas() <= 0) {
             cout << "Klaida!" << endl;
             cout << "Transakcijos ID: " << transakcijos_id << endl;
             cout << "Siuntejo viesasis raktas: " << siuntejo_viesasis_raktas << endl;
@@ -252,10 +260,10 @@ void generuotiTransakcijas(vector<Transakcija>& transakcijos, vector<Vartotojas>
     }
 
     for (const auto& transakcija : transakcijos) {
-        failas << "Transakcijos ID: " << transakcija.transakcijos_id << endl;
-        failas << "Siuntejo viesasis raktas: " << transakcija.siuntejo_viesasis_raktas << endl;
-        failas << "Gavejo viesasis raktas: " << transakcija.gavejo_viesasis_raktas << endl;
-        failas << "Suma: " << transakcija.suma << endl;
+        failas << "Transakcijos ID: " << transakcija.getTransakcijosId() << endl;
+        failas << "Siuntejo viesasis raktas: " << transakcija.getSiuntejoViesasisRaktas() << endl;
+        failas << "Gavejo viesasis raktas: " << transakcija.getGavejoViesasisRaktas() << endl;
+        failas << "Suma: " << transakcija.getSuma() << endl;
         failas << "" << endl;
     }
     failas.close();
@@ -271,10 +279,10 @@ void filtruotiTransakcijas(vector<Transakcija>& visos, vector<Transakcija>& pasi
 void atnaujintiTransakcijuFaila(const vector<Transakcija>& likusios_transakcijos) {
     ofstream transakciju_failas("Transakcijos.txt");
     for (const auto& tr : likusios_transakcijos) {
-        transakciju_failas << "Transakcijos ID: " << tr.transakcijos_id << endl;
-        transakciju_failas << "Siuntejo viesasis raktas: " << tr.siuntejo_viesasis_raktas << endl;
-        transakciju_failas << "Gavejo viesasis raktas: " << tr.gavejo_viesasis_raktas << endl;
-        transakciju_failas << "Suma: " << tr.suma << endl;
+        transakciju_failas << "Transakcijos ID: " << tr.getTransakcijosId() << endl;
+        transakciju_failas << "Siuntejo viesasis raktas: " << tr.getSiuntejoViesasisRaktas() << endl;
+        transakciju_failas << "Gavejo viesasis raktas: " << tr.getGavejoViesasisRaktas() << endl;
+        transakciju_failas << "Suma: " << tr.getSuma() << endl;
         transakciju_failas << "" << endl;
     }
     transakciju_failas.close();
@@ -289,11 +297,11 @@ int pridetiNonce(Blokas& blokas) {
     string hashas;
     do {
         nonce++;
-        hashas = hashFunkcija(blokas.bloko_id + to_string(nonce));
+        hashas = hashFunkcija(blokas.getBlokoId() + to_string(nonce));
     } while (hashas.substr(0, DifficultyTarget) != string(DifficultyTarget, '0'));
 
-    blokas.nonce = nonce;
-    blokas.bloko_id = hashas;
+    blokas.setNonce(nonce);
+    blokas.setBlokoId(hashas);
     return nonce;
 }
 
@@ -312,11 +320,11 @@ void generuotiBlokus(vector<Blokas>& blokai, vector<Transakcija>& transakcijos, 
 
             string sujungtasTransakcijuID;
             for (const auto& tr : isrinktos_transakcijos) {
-                sujungtasTransakcijuID += tr.transakcijos_id;
+                sujungtasTransakcijuID += tr.getTransakcijosId();
             }
 
             Blokas naujas_blokas(hashFunkcija(sujungtasTransakcijuID), isrinktos_transakcijos, 0);
-            naujas_blokas.transakcijos = isrinktos_transakcijos;
+            naujas_blokas.setTransakcijos(isrinktos_transakcijos);
             
 
             failiukas << "Iskastas blokas " << (blokai.size() + 1) << endl;
@@ -326,16 +334,16 @@ void generuotiBlokus(vector<Blokas>& blokai, vector<Transakcija>& transakcijos, 
             // Pridedame naujus blokus i bloku sarasa
             blokai.push_back(naujas_blokas);
 
-            failiukas << "Bloko ID: " << naujas_blokas.bloko_id << endl;
-            failiukas << "Nonce: " << naujas_blokas.nonce << endl;
+            failiukas << "Bloko ID: " << naujas_blokas.getBlokoId() << endl;
+            failiukas << "Nonce: " << naujas_blokas.getNonce() << endl;
             failiukas << "Transakcijos: " << endl;
             failiukas << "_______________________________________________________________________________________" << endl;
             failiukas << " " << endl;
-            for (const auto& tr : naujas_blokas.transakcijos) {
-                failiukas << "Transakcijos ID: " << tr.transakcijos_id << endl;
-                failiukas << "Siuntejo viesasis raktas: " << tr.siuntejo_viesasis_raktas << endl;
-                failiukas << "Gavejo viesasis raktas: " << tr.gavejo_viesasis_raktas << endl;
-                failiukas << "Suma: " << tr.suma << endl;
+            for (const auto& tr : naujas_blokas.getTransakcijos()) {
+                failiukas << "Transakcijos ID: " << tr.getTransakcijosId() << endl;
+                failiukas << "Siuntejo viesasis raktas: " << tr.getSiuntejoViesasisRaktas() << endl;
+                failiukas << "Gavejo viesasis raktas: " << tr.getGavejoViesasisRaktas() << endl;
+                failiukas << "Suma: " << tr.getSuma() << endl;
                 failiukas << "" << endl;
             }
 
@@ -350,9 +358,9 @@ void generuotiBlokus(vector<Blokas>& blokai, vector<Transakcija>& transakcijos, 
 void issaugotiBalansus(vector<Vartotojas>& vartotojai) {
     ofstream balansu_failas("NaujiVartotojuBalansai.txt");
     for (const auto& vartotojas : vartotojai) {
-        balansu_failas << "Vardas: " << vartotojas.vardas << endl;
-        balansu_failas << "Viesasis raktas: " << vartotojas.viesasis_raktas << endl;
-        balansu_failas << "Balansas: " << vartotojas.balansas << endl;
+        balansu_failas << "Vardas: " << vartotojas.getVardas() << endl;
+        balansu_failas << "Viesasis raktas: " << vartotojas.getViesasisRaktas() << endl;
+        balansu_failas << "Balansas: " << vartotojas.getBalansas() << endl;
         balansu_failas << "" << endl;
     }
     balansu_failas.close();
@@ -363,28 +371,28 @@ void atnaujintiBalansus(vector<Vartotojas>& vartotojai, const vector<Blokas>& bl
 
     // Indeksuojame vartotojus pagal jų viešuosius raktus
     for (size_t i = 0; i < vartotojai.size(); ++i) {
-        vartotojuIndexai[vartotojai[i].viesasis_raktas] = i;
+        vartotojuIndexai[vartotojai[i].getViesasisRaktas()] = i;
     }
 
     // Iteruojame per visus blokus
     for (const auto& blokas : blokai) {
         // Iteruojame per bloką sudarančias transakcijas
-        for (const auto& tr : blokas.transakcijos) {
+        for (const auto& tr : blokas.getTransakcijos()) {
             // Patikriname, ar siuntejas ir gavejas yra teisingi
-            auto itSiuntejas = vartotojuIndexai.find(tr.siuntejo_viesasis_raktas);
-            auto itGavejas = vartotojuIndexai.find(tr.gavejo_viesasis_raktas);
+            auto itSiuntejas = vartotojuIndexai.find(tr.getSiuntejoViesasisRaktas());
+            auto itGavejas = vartotojuIndexai.find(tr.getGavejoViesasisRaktas());
 
             if (itSiuntejas != vartotojuIndexai.end() && itGavejas != vartotojuIndexai.end()) {
                 int siuntejasIndex = (*itSiuntejas).second; // Gauti siuntėjo indeksą
                 int gavejasIndex = (*itGavejas).second; // Gauti gavėjo indeksą
 
                 // Patikriname, ar siuntejas turi pakankamą balansą
-                if (vartotojai[siuntejasIndex].balansas >= tr.suma) {
-                    vartotojai[siuntejasIndex].balansas -= tr.suma; // Atimame sumą iš siuntėjo
-                    vartotojai[gavejasIndex].balansas += tr.suma; // Pridedame sumą gavėjui
+                if (vartotojai[siuntejasIndex].getBalansas() >= tr.getSuma()) {
+                    vartotojai[siuntejasIndex].setBalansas(vartotojai[siuntejasIndex].getBalansas() - tr.getSuma()); 
+                    vartotojai[gavejasIndex].setBalansas(vartotojai[gavejasIndex].getBalansas() + tr.getSuma()); 
                 } else {
-                    cout << "Klaida! Siuntejas " << vartotojai[siuntejasIndex].vardas << ", kurio viesasis raktas: " << tr.siuntejo_viesasis_raktas 
-                    << " neturi pakankamai lesu. Balansas: " << vartotojai[siuntejasIndex].balansas << ". Suma: " << tr.suma << endl;
+                    cout << "Klaida! Siuntejas " << vartotojai[siuntejasIndex].getVardas() << ", kurio viesasis raktas: " << tr.getSiuntejoViesasisRaktas() 
+                    << " neturi pakankamai lesu. Balansas: " << vartotojai[siuntejasIndex].getBalansas() << ". Suma: " << tr.getSuma() << endl;
                 }
             } else {
                 cout << "Klaida: Nezinomas siuntejas ar gavejas." << endl;
@@ -396,29 +404,29 @@ void atnaujintiBalansus(vector<Vartotojas>& vartotojai, const vector<Blokas>& bl
 
 void rastiTransakcija(const vector<Transakcija>& transakcijos, const vector<Blokas>& blokai, const string& id) {
     auto it = find_if(transakcijos.begin(), transakcijos.end(), [&](const Transakcija& t) {
-        return t.transakcijos_id == id;
+        return t.getTransakcijosId() == id;
     });
 
     if (it != transakcijos.end()) {
         const Transakcija& transakcija = *it; 
-        cout << "Transakcijos ID: " << transakcija.transakcijos_id << endl;
-        cout << "Siuntejo viesasis raktas: " << transakcija.siuntejo_viesasis_raktas << endl;
-        cout << "Gavejo viesasis raktas: " << transakcija.gavejo_viesasis_raktas << endl;
-        cout << "Suma: " << transakcija.suma << endl << endl;
+        cout << "Transakcijos ID: " << transakcija.getTransakcijosId() << endl;
+        cout << "Siuntejo viesasis raktas: " << transakcija.getSiuntejoViesasisRaktas() << endl;
+        cout << "Gavejo viesasis raktas: " << transakcija.getGavejoViesasisRaktas() << endl;
+        cout << "Suma: " << transakcija.getSuma() << endl << endl;
         return; 
     }
 
     for (const auto& blokas : blokai) {
-        auto tr_it = find_if(blokas.transakcijos.begin(), blokas.transakcijos.end(), [&](const Transakcija& t) {
-            return t.transakcijos_id == id;
+        auto tr_it = find_if(blokas.getTransakcijos().begin(), blokas.getTransakcijos().end(), [&](const Transakcija& t) { // Use getter
+            return t.getTransakcijosId() == id; 
         });
-        if (tr_it != blokas.transakcijos.end()) {
+        if (tr_it != blokas.getTransakcijos().end()) {
             const Transakcija& transakcija = *tr_it; 
-            cout << "Bloko ID: " << blokas.bloko_id << endl; 
-            cout << "Transakcijos ID: " << transakcija.transakcijos_id << endl;
-            cout << "Siuntejo viesasis raktas: " << transakcija.siuntejo_viesasis_raktas << endl;
-            cout << "Gavejo viesasis raktas: " << transakcija.gavejo_viesasis_raktas << endl;
-            cout << "Suma: " << transakcija.suma << endl << endl;
+            cout << "Bloko ID: " << blokas.getBlokoId() << endl; 
+            cout << "Transakcijos ID: " << transakcija.getTransakcijosId() << endl;
+            cout << "Siuntejo viesasis raktas: " << transakcija.getSiuntejoViesasisRaktas() << endl;
+            cout << "Gavejo viesasis raktas: " << transakcija.getGavejoViesasisRaktas() << endl;
+            cout << "Suma: " << transakcija.getSuma() << endl << endl;
             return; 
         }
     }
@@ -427,18 +435,18 @@ void rastiTransakcija(const vector<Transakcija>& transakcijos, const vector<Blok
 
 void rastiBloka(const vector<Blokas>& blokai, const string& id) {
     auto it = find_if(blokai.begin(), blokai.end(), [&](const Blokas& b) {
-        return b.bloko_id == id;
+        return b.getBlokoId() == id;
     });
     if (it != blokai.end()) {
         const Blokas& blokas = *it; 
-        cout << "Bloko ID: " << blokas.bloko_id << endl;
-        cout << "Nonce: " << blokas.nonce << endl;
+        cout << "Bloko ID: " << blokas.getBlokoId() << endl;
+        cout << "Nonce: " << blokas.getNonce() << endl;
         cout << "Transakcijos:" << endl;
-        for (const auto& tr : blokas.transakcijos) {
-            cout << "  Transakcijos ID: " << tr.transakcijos_id << endl;
-            cout << "  Siuntejo viesasis raktas: " << tr.siuntejo_viesasis_raktas << endl;
-            cout << "  Gavejo viesasis raktas: " << tr.gavejo_viesasis_raktas << endl;
-            cout << "  Suma: " << tr.suma << endl;
+        for (const auto& tr : blokas.getTransakcijos()) {
+            cout << "  Transakcijos ID: " << tr.getTransakcijosId() << endl;
+            cout << "  Siuntejo viesasis raktas: " << tr.getSiuntejoViesasisRaktas() << endl;
+            cout << "  Gavejo viesasis raktas: " << tr.getGavejoViesasisRaktas() << endl;
+            cout << "  Suma: " << tr.getSuma() << endl;
             cout << " " << endl;
         }
     } else {
