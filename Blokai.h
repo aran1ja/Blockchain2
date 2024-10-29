@@ -162,7 +162,7 @@ void generuotiVartotojus(vector<Vartotojas>& vartotojai, ofstream& fail) {
     for (int i = 0; i < 1000; i++) {
         string vardas = randomVardas();
         int balansas = rand() % 1000000 + 100;
-        string viesasis_raktas = hashFunkcija(vardas + to_string(i) + to_string(balansas));
+        string viesasis_raktas = hashFunkcija(to_string(i) + vardas + to_string(balansas));
         
         vartotojai.push_back({vardas, viesasis_raktas, balansas});
     }
@@ -217,9 +217,6 @@ void generuotiTransakcijas(vector<Transakcija>& transakcijos, vector<Vartotojas>
         }
 
         transakcijos.push_back({transakcijos_id, siuntejo_viesasis_raktas, gavejo_viesasis_raktas, suma});
-    
-        //vartotojai[siuntejas].balansas -= suma; 
-        //vartotojai[gavejas].balansas += suma;
     }
 
     for (const auto& transakcija : transakcijos) {
@@ -296,7 +293,7 @@ void generuotiBlokus(vector<Blokas>& blokai, vector<Transakcija>& transakcijos, 
 
             // Pridedame naujus blokus i bloku sarasa
             blokai.push_back(naujas_blokas);
-            
+
             failiukas << "Bloko ID: " << naujas_blokas.bloko_id << endl;
             failiukas << "Nonce: " << naujas_blokas.nonce << endl;
             failiukas << "Transakcijos: " << endl;
@@ -331,20 +328,37 @@ void issaugotiBalansus(vector<Vartotojas>& vartotojai) {
 
 void atnaujintiBalansus(vector<Vartotojas>& vartotojai, const vector<Blokas>& blokai) {
     unordered_map<string, int> vartotojuIndexai;
+
+    // Indeksuojame vartotojus pagal jų viešuosius raktus
     for (size_t i = 0; i < vartotojai.size(); ++i) {
         vartotojuIndexai[vartotojai[i].viesasis_raktas] = i;
     }
 
+    // Iteruojame per visus blokus
     for (const auto& blokas : blokai) {
+        // Iteruojame per bloką sudarančias transakcijas
         for (const auto& tr : blokas.transakcijos) {
-            int siuntejas = vartotojuIndexai[tr.siuntejo_viesasis_raktas];
-            int gavejas = vartotojuIndexai[tr.gavejo_viesasis_raktas];
+            // Patikriname, ar siuntejas ir gavejas yra teisingi
+            auto itSiuntejas = vartotojuIndexai.find(tr.siuntejo_viesasis_raktas);
+            auto itGavejas = vartotojuIndexai.find(tr.gavejo_viesasis_raktas);
 
-            vartotojai[siuntejas].balansas -= tr.suma;
-            vartotojai[gavejas].balansas += tr.suma;
+            if (itSiuntejas != vartotojuIndexai.end() && itGavejas != vartotojuIndexai.end()) {
+                int siuntejasIndex = (*itSiuntejas).second; // Gauti siuntėjo indeksą
+                int gavejasIndex = (*itGavejas).second; // Gauti gavėjo indeksą
+
+                // Patikriname, ar siuntejas turi pakankamą balansą
+                if (vartotojai[siuntejasIndex].balansas >= tr.suma) {
+                    vartotojai[siuntejasIndex].balansas -= tr.suma; // Atimame sumą iš siuntėjo
+                    vartotojai[gavejasIndex].balansas += tr.suma; // Pridedame sumą gavėjui
+                } else {
+                    cout << "Klaida! Siuntejas " << tr.siuntejo_viesasis_raktas << " neturi pakankamai lesu. Balansas: " 
+                    << vartotojai[siuntejasIndex].balansas << ". Suma: " << tr.suma << endl;
+                }
+            } else {
+                cout << "Klaida: Nezinomas siuntejas ar gavejas." << endl;
+            }
         }
     }
-
     issaugotiBalansus(vartotojai);
 }
 
