@@ -39,14 +39,14 @@ class Transakcija {
 };
 
 class Blokas {
-    public:
+public:
     string bloko_id;
     vector<Transakcija> transakcijos;
     int nonce;
 
     // Konstruktorius
-    Blokas(const string& id, const vector<Transakcija>& trans = {}, int nonca = 0)
-        : bloko_id(id), transakcijos(trans), nonce(nonca) {}
+    Blokas(const string& id, const vector<Transakcija>& trans = {}, int nonce = 0)
+        : bloko_id(id), transakcijos(trans), nonce(nonce) {}
 };
 
 string randomVardas() {
@@ -286,17 +286,14 @@ void generuotiBlokus(vector<Blokas>& blokai, vector<Transakcija>& transakcijos, 
                 sujungtasTransakcijuID += tr.transakcijos_id;
             }
 
-            Blokas naujas_blokas(hashFunkcija(sujungtasTransakcijuID));
-
-            //naujas_blokas.bloko_id = hashFunkcija(sujungtasTransakcijuID);
-            //naujas_blokas.transakcijos = isrinktos_transakcijos;
-
-            failiukas << "Iskastas blokas " << (blokai.size() + 1) << endl;
+            Blokas naujas_blokas(hashFunkcija(sujungtasTransakcijuID), isrinktos_transakcijos, 0);
+            naujas_blokas.transakcijos = isrinktos_transakcijos;
             pridetiNonce(naujas_blokas);
 
             // Pridedame naujus blokus i bloku sarasa
             blokai.push_back(naujas_blokas);
 
+            failiukas << "Iskastas blokas " << (blokai.size() + 1) << endl;
             failiukas << "Bloko ID: " << naujas_blokas.bloko_id << endl;
             failiukas << "Nonce: " << naujas_blokas.nonce << endl;
             failiukas << "Transakcijos: " << endl;
