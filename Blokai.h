@@ -161,8 +161,8 @@ string hashFunkcija(string simboliu_seka) {
 void generuotiVartotojus(vector<Vartotojas>& vartotojai, ofstream& fail) {
     for (int i = 0; i < 1000; i++) {
         string vardas = randomVardas();
-        string viesasis_raktas = hashFunkcija(vardas + to_string(i));
         int balansas = rand() % 1000000 + 100;
+        string viesasis_raktas = hashFunkcija(vardas + to_string(i) + to_string(balansas));
         
         vartotojai.push_back({vardas, viesasis_raktas, balansas});
     }
@@ -218,8 +218,8 @@ void generuotiTransakcijas(vector<Transakcija>& transakcijos, vector<Vartotojas>
 
         transakcijos.push_back({transakcijos_id, siuntejo_viesasis_raktas, gavejo_viesasis_raktas, suma});
     
-        vartotojai[siuntejas].balansas -= suma; 
-        vartotojai[gavejas].balansas += suma;
+        //vartotojai[siuntejas].balansas -= suma; 
+        //vartotojai[gavejas].balansas += suma;
     }
 
     for (const auto& transakcija : transakcijos) {
@@ -343,85 +343,6 @@ void atnaujintiBalansus(vector<Vartotojas>& vartotojai, const vector<Blokas>& bl
     }
 
     issaugotiBalansus(vartotojai);
-}
-
-// NUSKAITOMI VARTOTOJAI //
-void nuskaitytiVartotojus(vector<Vartotojas>& vartotojai) {
-    ifstream fail("Vartotojai.txt");
-    if (!fail.is_open()) {
-        cout << "Nepavyko atidaryti 'Vartotojai.txt' failo." << endl;
-        return;
-    }
-
-    string vardas;
-    string viesasis_raktas;
-    int balansas;
-
-    while (getline(fail, vardas)) {
-        getline(fail, viesasis_raktas);
-        fail >> balansas;
-        fail.ignore();
-        vartotojai.emplace_back(vardas, viesasis_raktas, balansas);
-    }
-
-    fail.close();
-}
-
-// NUSKAITOMOS TRANSAKCIJOS //
-void nuskaitytiTransakcijas(vector<Transakcija>& transakcijos) {
-    ifstream fail("Transakcijos.txt");
-    if (!fail.is_open()) {
-        cout << "Nepavyko atidaryti 'Transakcijos.txt' failo." << endl;
-        return;
-    }
-
-    string transakcijos_id;
-    string siuntejo_viesasis_raktas;
-    string gavejo_viesasis_raktas;
-    int suma;
-
-    while (getline(fail, transakcijos_id)) {
-        getline(fail, siuntejo_viesasis_raktas);
-        getline(fail, gavejo_viesasis_raktas);
-        fail >> suma;
-        fail.ignore();
-        transakcijos.emplace_back(transakcijos_id, siuntejo_viesasis_raktas, gavejo_viesasis_raktas, suma);
-    }
-
-    fail.close();
-}
-
-// NUSKAITOMI BLOKAI //
-void nuskaitytiBlokus(vector<Blokas>& blokai) {
-    ifstream fail("Blokai.txt");
-    if (!fail.is_open()) {
-        cout << "Nepavyko atidaryti 'Blokai.txt' failo." << endl;
-        return;
-    }
-
-    string bloko_id;
-    vector<Transakcija> transakcijos;
-    int nonce;
-
-    while (getline(fail, bloko_id)) {
-        string line;
-        while (getline(fail, line) && !line.empty()) {
-            string transakcijos_id;
-            string siuntejo_viesasis_raktas;
-            string gavejo_viesasis_raktas;
-            int suma;
-
-            transakcijos_id = line;
-            getline(fail, siuntejo_viesasis_raktas);
-            getline(fail, gavejo_viesasis_raktas);
-            fail >> suma;
-            fail.ignore();
-            transakcijos.emplace_back(transakcijos_id, siuntejo_viesasis_raktas, gavejo_viesasis_raktas, suma);
-        }
-        blokai.emplace_back(bloko_id, transakcijos, nonce);
-    }
-
-    fail.close();
 }
 
 void rastiTransakcija(const vector<Transakcija>& transakcijos, const vector<Blokas>& blokai, const string& id) {
