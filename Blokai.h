@@ -288,12 +288,15 @@ void generuotiBlokus(vector<Blokas>& blokai, vector<Transakcija>& transakcijos, 
 
             Blokas naujas_blokas(hashFunkcija(sujungtasTransakcijuID), isrinktos_transakcijos, 0);
             naujas_blokas.transakcijos = isrinktos_transakcijos;
+            
+
+            failiukas << "Iskastas blokas " << (blokai.size() + 1) << endl;
+
             pridetiNonce(naujas_blokas);
 
             // Pridedame naujus blokus i bloku sarasa
             blokai.push_back(naujas_blokas);
-
-            failiukas << "Iskastas blokas " << (blokai.size() + 1) << endl;
+            
             failiukas << "Bloko ID: " << naujas_blokas.bloko_id << endl;
             failiukas << "Nonce: " << naujas_blokas.nonce << endl;
             failiukas << "Transakcijos: " << endl;
