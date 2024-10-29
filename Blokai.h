@@ -13,40 +13,72 @@
 using namespace std;
 
 class Vartotojas {
-    public:
+    private:
     string vardas;
     string viesasis_raktas;
     int balansas;
 
+    public:
     // Konstruktorius
+    Vartotojas() = default;
     Vartotojas(const string& vardas, const string& viesasis_raktas, int balansas) 
         : vardas(vardas), viesasis_raktas(viesasis_raktas), balansas(balansas) {}
 
+    // Destruktorius
+    ~Vartotojas() {}
+
+    // Getteriai ir setteriai
+    string getVardas() const { return vardas; }
+    string getViesasisRaktas() const { return viesasis_raktas; }
+    int getBalansas() const { return balansas; }
+    void setBalansas(int newBalansas) { balansas = newBalansas; }
 };
 
 class Transakcija {
-    public:
+    private:
     string transakcijos_id;
     string siuntejo_viesasis_raktas;
     string gavejo_viesasis_raktas;
     int suma;
 
+    public:
     // Konstruktorius
+    Transakcija() = default;
     Transakcija(const string& transakcijos_id, const string& siuntejo_viesasis_raktas, 
                 const string& gavejo_viesasis_raktas, int suma) 
         : transakcijos_id(transakcijos_id), siuntejo_viesasis_raktas(siuntejo_viesasis_raktas), 
           gavejo_viesasis_raktas(gavejo_viesasis_raktas), suma(suma) {}
+    
+    // Destruktorius
+    ~Transakcija() {}
+
+    // Getteriai ir setteriai
+    string getTransakcijosId() const { return transakcijos_id; }
+    string getSiuntejoViesasisRaktas() const { return siuntejo_viesasis_raktas; }
+    string getGavejoViesasisRaktas() const { return gavejo_viesasis_raktas; }
+    int getSuma() const { return suma; }
 };
 
 class Blokas {
-public:
+    private:
     string bloko_id;
     vector<Transakcija> transakcijos;
     int nonce;
 
+    public:
     // Konstruktorius
+    Blokas() = default;
     Blokas(const string& id, const vector<Transakcija>& trans = {}, int nonce = 0)
         : bloko_id(id), transakcijos(trans), nonce(nonce) {}
+
+    // Destruktorius
+    ~Blokas() {}
+
+    // Getteriai ir setteriai
+    string getBlokoId() const { return bloko_id; }
+    const vector<Transakcija>& getTransakcijos() const { return transakcijos; }
+    int getNonce() const { return nonce; }
+    void setNonce(int newNonce) { nonce = newNonce; }
 };
 
 string randomVardas() {
@@ -351,8 +383,8 @@ void atnaujintiBalansus(vector<Vartotojas>& vartotojai, const vector<Blokas>& bl
                     vartotojai[siuntejasIndex].balansas -= tr.suma; // Atimame sumą iš siuntėjo
                     vartotojai[gavejasIndex].balansas += tr.suma; // Pridedame sumą gavėjui
                 } else {
-                    cout << "Klaida! Siuntejas " << tr.siuntejo_viesasis_raktas << " neturi pakankamai lesu. Balansas: " 
-                    << vartotojai[siuntejasIndex].balansas << ". Suma: " << tr.suma << endl;
+                    cout << "Klaida! Siuntejas " << vartotojai[siuntejasIndex].vardas << ", kurio viesasis raktas: " << tr.siuntejo_viesasis_raktas 
+                    << " neturi pakankamai lesu. Balansas: " << vartotojai[siuntejasIndex].balansas << ". Suma: " << tr.suma << endl;
                 }
             } else {
                 cout << "Klaida: Nezinomas siuntejas ar gavejas." << endl;
