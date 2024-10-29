@@ -197,10 +197,6 @@ void generuotiTransakcijas(vector<Transakcija>& transakcijos, vector<Vartotojas>
             continue; 
         }
 
-        // Pakeiciame siunteju ir gaveju balansus
-        vartotojai[siuntejas].balansas -= suma;
-        vartotojai[gavejas].balansas += suma;
-
         transakcijos.push_back({transakcijos_id, siuntejo_viesasis_raktas, gavejo_viesasis_raktas, suma});
     }
 
@@ -249,6 +245,8 @@ int pridetiNonce(Blokas& blokas) {
     blokas.bloko_id = hashas;
     return nonce;
 }
+
+
 
 void generuotiBlokus(vector<Blokas>& blokai, vector<Transakcija>& transakcijos, ofstream& failiukas) {
     char pasirinkimas;
@@ -308,6 +306,25 @@ void issaugotiBalansus(vector<Vartotojas>& vartotojai) {
         balansu_failas << "" << endl;
     }
     balansu_failas.close();
+}
+
+void atnaujintiBalansus(vector<Vartotojas>& vartotojai, const vector<Blokas>& blokai) {
+    unordered_map<string, int> vartotojuIndexai;
+    for (size_t i = 0; i < vartotojai.size(); ++i) {
+        vartotojuIndexai[vartotojai[i].viesasis_raktas] = i;
+    }
+
+    for (const auto& blokas : blokai) {
+        for (const auto& tr : blokas.transakcijos) {
+            int siuntejas = vartotojuIndexai[tr.siuntejo_viesasis_raktas];
+            int gavejas = vartotojuIndexai[tr.gavejo_viesasis_raktas];
+
+            vartotojai[siuntejas].balansas -= tr.suma;
+            vartotojai[gavejas].balansas += tr.suma;
+        }
+    }
+
+    issaugotiBalansus(vartotojai);
 }
 
 // NUSKAITOMI VARTOTOJAI //

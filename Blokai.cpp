@@ -22,8 +22,7 @@ int main() {
         generuotiTransakcijas(transakcijos, vartotojai, failas);
         cout << "Bloku generavimas prasideda..." << endl;
         generuotiBlokus(blokai, transakcijos, failiukas);
-        cout << "Pakeiciami balansai..." << endl;
-        issaugotiBalansus(vartotojai);
+        atnaujintiBalansus(vartotojai, blokai);
 
         fail.close();
         failas.close();
