@@ -17,6 +17,11 @@ class Vartotojas {
     string vardas;
     string viesasis_raktas;
     int balansas;
+
+    // Konstruktorius
+    Vartotojas(const string& vardas, const string& viesasis_raktas, int balansas) 
+        : vardas(vardas), viesasis_raktas(viesasis_raktas), balansas(balansas) {}
+
 };
 
 class Transakcija {
@@ -25,6 +30,12 @@ class Transakcija {
     string siuntejo_viesasis_raktas;
     string gavejo_viesasis_raktas;
     int suma;
+
+    // Konstruktorius
+    Transakcija(const string& transakcijos_id, const string& siuntejo_viesasis_raktas, 
+                const string& gavejo_viesasis_raktas, int suma) 
+        : transakcijos_id(transakcijos_id), siuntejo_viesasis_raktas(siuntejo_viesasis_raktas), 
+          gavejo_viesasis_raktas(gavejo_viesasis_raktas), suma(suma) {}
 };
 
 class Blokas {
@@ -32,6 +43,10 @@ class Blokas {
     string bloko_id;
     vector<Transakcija> transakcijos;
     int nonce;
+
+    // Konstruktorius
+    Blokas(const string& id, const vector<Transakcija>& trans = {}, int nonca = 0)
+        : bloko_id(id), transakcijos(trans), nonce(nonca) {}
 };
 
 string randomVardas() {
@@ -253,8 +268,6 @@ int pridetiNonce(Blokas& blokas) {
     return nonce;
 }
 
-
-
 void generuotiBlokus(vector<Blokas>& blokai, vector<Transakcija>& transakcijos, ofstream& failiukas) {
     char pasirinkimas;
 
@@ -273,9 +286,10 @@ void generuotiBlokus(vector<Blokas>& blokai, vector<Transakcija>& transakcijos, 
                 sujungtasTransakcijuID += tr.transakcijos_id;
             }
 
-            Blokas naujas_blokas;
-            naujas_blokas.bloko_id = hashFunkcija(sujungtasTransakcijuID);
-            naujas_blokas.transakcijos = isrinktos_transakcijos;
+            Blokas naujas_blokas(hashFunkcija(sujungtasTransakcijuID));
+
+            //naujas_blokas.bloko_id = hashFunkcija(sujungtasTransakcijuID);
+            //naujas_blokas.transakcijos = isrinktos_transakcijos;
 
             failiukas << "Iskastas blokas " << (blokai.size() + 1) << endl;
             pridetiNonce(naujas_blokas);
@@ -342,12 +356,15 @@ void nuskaitytiVartotojus(vector<Vartotojas>& vartotojai) {
         return;
     }
 
-    Vartotojas vartotojas;
-    while (getline(fail, vartotojas.vardas)) {
-        getline(fail, vartotojas.viesasis_raktas);
-        fail >> vartotojas.balansas;
+    string vardas;
+    string viesasis_raktas;
+    int balansas;
+
+    while (getline(fail, vardas)) {
+        getline(fail, viesasis_raktas);
+        fail >> balansas;
         fail.ignore();
-        vartotojai.push_back(vartotojas);
+        vartotojai.emplace_back(vardas, viesasis_raktas, balansas);
     }
 
     fail.close();
@@ -361,13 +378,17 @@ void nuskaitytiTransakcijas(vector<Transakcija>& transakcijos) {
         return;
     }
 
-    Transakcija transakcija;
-    while (getline(fail, transakcija.transakcijos_id)) {
-        getline(fail, transakcija.siuntejo_viesasis_raktas);
-        getline(fail, transakcija.gavejo_viesasis_raktas);
-        fail >> transakcija.suma;
+    string transakcijos_id;
+    string siuntejo_viesasis_raktas;
+    string gavejo_viesasis_raktas;
+    int suma;
+
+    while (getline(fail, transakcijos_id)) {
+        getline(fail, siuntejo_viesasis_raktas);
+        getline(fail, gavejo_viesasis_raktas);
+        fail >> suma;
         fail.ignore();
-        transakcijos.push_back(transakcija);
+        transakcijos.emplace_back(transakcijos_id, siuntejo_viesasis_raktas, gavejo_viesasis_raktas, suma);
     }
 
     fail.close();
@@ -381,19 +402,26 @@ void nuskaitytiBlokus(vector<Blokas>& blokai) {
         return;
     }
 
-    Blokas blokas;
-    while (getline(fail, blokas.bloko_id)) {
+    string bloko_id;
+    vector<Transakcija> transakcijos;
+    int nonce;
+
+    while (getline(fail, bloko_id)) {
         string line;
         while (getline(fail, line) && !line.empty()) {
-            Transakcija transakcija;
-            transakcija.transakcijos_id = line;
-            getline(fail, transakcija.siuntejo_viesasis_raktas);
-            getline(fail, transakcija.gavejo_viesasis_raktas);
-            fail >> transakcija.suma;
+            string transakcijos_id;
+            string siuntejo_viesasis_raktas;
+            string gavejo_viesasis_raktas;
+            int suma;
+
+            transakcijos_id = line;
+            getline(fail, siuntejo_viesasis_raktas);
+            getline(fail, gavejo_viesasis_raktas);
+            fail >> suma;
             fail.ignore();
-            blokas.transakcijos.push_back(transakcija);
+            transakcijos.emplace_back(transakcijos_id, siuntejo_viesasis_raktas, gavejo_viesasis_raktas, suma);
         }
-        blokai.push_back(blokas);
+        blokai.emplace_back(bloko_id, transakcijos, nonce);
     }
 
     fail.close();
