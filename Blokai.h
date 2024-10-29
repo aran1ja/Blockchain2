@@ -214,9 +214,28 @@ void generuotiTransakcijas(vector<Transakcija>& transakcijos, vector<Vartotojas>
     failas.close();
 }
 
+void filtruotiTransakcijas(vector<Transakcija>& visos, vector<Transakcija>& pasirinktos) {
+    for (auto it = visos.begin(); it != visos.end() && pasirinktos.size() < 100;) {
+        pasirinktos.push_back(*it);
+        it = visos.erase(it); 
+    }
+}
+
+void atnaujintiTransakcijuFaila(const vector<Transakcija>& likusios_transakcijos) {
+    ofstream transakciju_failas("Transakcijos.txt");
+    for (const auto& tr : likusios_transakcijos) {
+        transakciju_failas << "Transakcijos ID: " << tr.transakcijos_id << endl;
+        transakciju_failas << "Siuntejo viesasis raktas: " << tr.siuntejo_viesasis_raktas << endl;
+        transakciju_failas << "Gavejo viesasis raktas: " << tr.gavejo_viesasis_raktas << endl;
+        transakciju_failas << "Suma: " << tr.suma << endl;
+        transakciju_failas << "" << endl;
+    }
+    transakciju_failas.close();
+}
+
     /////BLOKAI/////
 
-const int DifficultyTarget = 1;
+const int DifficultyTarget = 2;
 
 int pridetiNonce(Blokas& blokas) {
     int nonce = 0;
@@ -232,53 +251,50 @@ int pridetiNonce(Blokas& blokas) {
 }
 
 void generuotiBlokus(vector<Blokas>& blokai, vector<Transakcija>& transakcijos, ofstream& failiukas) {
-    char pasirinkimas = 't';
-    
-    while (pasirinkimas == 't' && !transakcijos.empty()) {
-        Blokas naujas_blokas;
-        vector<Transakcija> isrinktos_transakcijos;
-        vector<string> transakciju_unikalus_kodas;
+    char pasirinkimas;
 
-        for (int j = 0; j < 100 && !transakcijos.empty(); j++) {
-            int randomTransakcijosIndeksas = rand() % transakcijos.size();
-            isrinktos_transakcijos.push_back(transakcijos[randomTransakcijosIndeksas]);
-            transakciju_unikalus_kodas.push_back(transakcijos[randomTransakcijosIndeksas].transakcijos_id);
-            
-            // Pasalinama transakcija, kuri jau buvo panaudota. Tam, kad nenaudoti ja kelis kartus
-            transakcijos.erase(transakcijos.begin() + randomTransakcijosIndeksas);
-        }
-
-        string sujungtasTransakcijuID;
-        for (const auto& id : transakciju_unikalus_kodas) {
-            sujungtasTransakcijuID += id;
-        }
-
-        naujas_blokas.bloko_id = hashFunkcija(sujungtasTransakcijuID);
-        naujas_blokas.transakcijos = isrinktos_transakcijos;
-
-        failiukas << "Iskastas blokas " << (blokai.size() + 1) << endl;
-        pridetiNonce(naujas_blokas);
-        
-        // Pridedame naujus blokus i bloku sarasa
-        blokai.push_back(naujas_blokas);
-
-        failiukas << "Bloko ID: " << naujas_blokas.bloko_id << endl;
-        failiukas << "Nonce: " << naujas_blokas.nonce << endl;
-        failiukas << "Transakcijos: " << endl;
-        failiukas << "_______________________________________________________________________________________" << endl;
-        failiukas << " " << endl;
-        for (const auto& tr : naujas_blokas.transakcijos) {
-            failiukas << "Transakcijos ID: " << tr.transakcijos_id << endl;
-            failiukas << "Siuntejo viesasis raktas: " << tr.siuntejo_viesasis_raktas << endl;
-            failiukas << "Gavejo viesasis raktas: " << tr.gavejo_viesasis_raktas << endl;
-            failiukas << "Suma: " << tr.suma << endl;
-            failiukas << "" << endl;
-        }
-        
-        cout << "Ar norite sukurti dar viena bloka? (t/n): ";
+    do {
+        cout << "Liko " << transakcijos.size() << " transakciju." << endl;
+        cout << "Ar norite sukurti nauja bloka? (t/n): ";
         cin >> pasirinkimas;
-        if (pasirinkimas != 't') break;
-    }
+
+        if (pasirinkimas == 't' && !transakcijos.empty()) {
+            vector<Transakcija> isrinktos_transakcijos;
+
+            filtruotiTransakcijas(transakcijos, isrinktos_transakcijos);
+
+            string sujungtasTransakcijuID;
+            for (const auto& tr : isrinktos_transakcijos) {
+                sujungtasTransakcijuID += tr.transakcijos_id;
+            }
+
+            Blokas naujas_blokas;
+            naujas_blokas.bloko_id = hashFunkcija(sujungtasTransakcijuID);
+            naujas_blokas.transakcijos = isrinktos_transakcijos;
+
+            failiukas << "Iskastas blokas " << (blokai.size() + 1) << endl;
+            pridetiNonce(naujas_blokas);
+
+            // Pridedame naujus blokus i bloku sarasa
+            blokai.push_back(naujas_blokas);
+
+            failiukas << "Bloko ID: " << naujas_blokas.bloko_id << endl;
+            failiukas << "Nonce: " << naujas_blokas.nonce << endl;
+            failiukas << "Transakcijos: " << endl;
+            failiukas << "_______________________________________________________________________________________" << endl;
+            failiukas << " " << endl;
+            for (const auto& tr : naujas_blokas.transakcijos) {
+                failiukas << "Transakcijos ID: " << tr.transakcijos_id << endl;
+                failiukas << "Siuntejo viesasis raktas: " << tr.siuntejo_viesasis_raktas << endl;
+                failiukas << "Gavejo viesasis raktas: " << tr.gavejo_viesasis_raktas << endl;
+                failiukas << "Suma: " << tr.suma << endl;
+                failiukas << "" << endl;
+            }
+
+            atnaujintiTransakcijuFaila(transakcijos);
+        }
+
+    } while (pasirinkimas == 't' && !transakcijos.empty());
 
     failiukas.close();
 }

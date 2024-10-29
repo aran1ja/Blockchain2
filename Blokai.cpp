@@ -8,30 +8,27 @@ int main() {
     vector<Blokas> blokai;
     char pasirinkimas;
     
-    cout << "Ar norite generuoti naujus vartotojus, transakcijas ir blokus? (t/n): ";
+    cout << "Ar norite generuoti naujus vartotojus, transakcijas? (t/n): ";
     cin >> pasirinkimas;
 
-    // Blogai rodo naujus balansus jeigu leisti dar karta ta pati
     if (pasirinkimas == 't') {
         ofstream fail("Vartotojai.txt");
         ofstream failas("Transakcijos.txt");
         ofstream failiukas("Blokai.txt");
 
+        cout << "Generuojami vartotojai..." << endl;
         generuotiVartotojus(vartotojai, fail);
+        cout << "Generuojamos transakcijos..." << endl;
         generuotiTransakcijas(transakcijos, vartotojai, failas);
+        cout << "Bloku generavimas prasideda..." << endl;
         generuotiBlokus(blokai, transakcijos, failiukas);
+        cout << "Pakeiciami balansai..." << endl;
         issaugotiBalansus(vartotojai);
 
         fail.close();
         failas.close();
         failiukas.close();
-    } else {
-        cout << "Naudojami esami failai (Vartotojai.txt, Transakcijos.txt, Blokai.txt)." << endl;
-        nuskaitytiVartotojus(vartotojai);
-        nuskaitytiTransakcijas(transakcijos);
-        nuskaitytiBlokus(blokai);
-        issaugotiBalansus(vartotojai);
-    }
+    } 
 
     return 0;
 }
