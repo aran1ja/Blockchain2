@@ -22,6 +22,7 @@ int main() {
         cout << "Generuojamos transakcijos..." << endl;
         generuotiTransakcijas(transakcijos, vartotojai, failas);
         cout << "Bloku generavimas prasideda..." << endl;
+        cout << "Galima is kart paspausti keleta 't', kad iskasti keleta bloku." << endl;
         generuotiBlokus(blokai, transakcijos, failiukas);
         cout << "Atnaujinami balansai..." << endl;
         atnaujintiBalansus(vartotojai, blokai);

@@ -12,34 +12,25 @@
 #include <unordered_map>      
 using namespace std;
 
-struct Vartotojas {
-    public: 
-
-    Vartotojas(string v, string r, int b) : vardas(v), viesasis_raktas(r), balansas(b) {}
+class Vartotojas {
+    public:
     string vardas;
     string viesasis_raktas;
     int balansas;
 };
 
-struct Transakcija {
+class Transakcija {
     public:
-
-    Transakcija(string id, string siuntejo, string gavejo, int s) 
-        : transakcijos_id(id), siuntejo_viesasis_raktas(siuntejo), gavejo_viesasis_raktas(gavejo), suma(s) {}
     string transakcijos_id;
     string siuntejo_viesasis_raktas;
     string gavejo_viesasis_raktas;
     int suma;
 };
 
-struct Blokas {
-    public: 
-    
-    Blokas(string id) : bloko_id(id), nonce(0) {}
+class Blokas {
+    public:
     string bloko_id;
     vector<Transakcija> transakcijos;
-
-    private:
     int nonce;
 };
 
@@ -192,13 +183,14 @@ void generuotiTransakcijas(vector<Transakcija>& transakcijos, vector<Vartotojas>
         string gavejo_viesasis_raktas = vartotojai[gavejas].viesasis_raktas;
 
         // Suma, kuri yra pervedama
-        int suma = rand() % 10000 + 1;
+        int suma;
+        suma = rand() % 10000 + 1; 
 
         // Transakcijos unikalusis kodas
         string transakcijos_id = hashFunkcija(siuntejo_viesasis_raktas + gavejo_viesasis_raktas + to_string(suma));
 
         // Patikriname, ar uztenka siuntejo balanso transakcijai vykdyti
-        if (suma > vartotojai[siuntejas].balansas) {
+        if (suma > vartotojai[siuntejas].balansas || vartotojai[siuntejas].balansas <= 0) {
             cout << "Klaida!" << endl;
             cout << "Transakcijos ID: " << transakcijos_id << endl;
             cout << "Siuntejo viesasis raktas: " << siuntejo_viesasis_raktas << endl;
@@ -210,6 +202,9 @@ void generuotiTransakcijas(vector<Transakcija>& transakcijos, vector<Vartotojas>
         }
 
         transakcijos.push_back({transakcijos_id, siuntejo_viesasis_raktas, gavejo_viesasis_raktas, suma});
+    
+        vartotojai[siuntejas].balansas -= suma; 
+        vartotojai[gavejas].balansas += suma;
     }
 
     for (const auto& transakcija : transakcijos) {
