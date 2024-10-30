@@ -37,6 +37,32 @@ Transakcijų struktūrą galite tobulinti, pvz., vietoj sąskaitos modelio (angl
 * pridėkite naują bloką prie blokų grandinės.
 6. Kartokite 3-5 žingsnius, kol yra neįtrauktų transakcijų. Taip pat galite kartoti 1-5 žingsnius, generuodami naujus vartotojus ir transakcijas.
 
+# Naudojimosi instrukcija
+1. GitHub'e paspauskite žalią mygtuką "Code".
+2. Paspauskite "Download ZIP".
+3. Susinstaliavus failui, spauskite "Extract".
+4. Gautą kodą galite paleisti per Visual Studio Code ar per bet kokią kitą programėlę.
+5. Paleidus kodą, atsiras kalusimas "Ar norite generuoti naujus vartotojus, transakcijas? (t/n):". Paspaudus "t" bus generuojami vartotojai ir transakcijos.
+6. Atsiras užrašai ant ekrano:
+   * "Generuojami vartotojai..."
+   * "Generuojamos transakcijos..."     
+   * Sugeneruotus vartotojus galima peržiūrėti faile "Vartotojai.txt", transakcijas - "Transakcijos.txt".
+8. Ant ekrano atsiras daug klaidų pranešimų - jos nurodo, kad yra netinkamų transakcijų, kur siuntėjų balansai yra nepakankami transakcijoms vykdyti.
+9. Ant ekrano atsiras
+    * "Bloku generavimas prasideda..."
+    * "Galima is kart paspausti keleta 't', kad iskasti keleta bloku."
+    * Kiek kartų paspausite "t", tiek blokų ir bus generuojama. Blokai gali būti generuojami tol, kol yra neįtrauktų transakcijų.
+11. Kada programa įtrauks visas transakcijas arba tik tiek, kiek reikia, bus atnaujinami vartotojų balansai. Juos galima peržiūrėti faile "NaujiVartotojuBalansai.txt".
+12. Informacija atsiras faile "Blokai.txt".
+13. Galiausiai bus tokie pasirinkimai:
+    
+    Pasirinkite viena veiksma is nurodytu zemiau.
+    1. Ieskoti transakcijos pagal ID.
+    2. Ieskoti bloko pagal ID.
+    Bet koks kitas sakicius baigia programa.
+
+Tai leidžia išrinkti ar norite gauti informacijos apie tam tikras transakcijas ir blokus. Jei nenorite jokios informacijos, bet koks paspaustas skaičius užbaigs programos veikimą.
+
 # Atliktos užduoties formuluotė
 ## 1. Vartotojų generavimas
 Pirmai užduočiai atlikti sukūriau vartotojų klasę.
