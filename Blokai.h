@@ -66,7 +66,7 @@ class Blokas {
     
     string prev_block_hash;     //Ankstesnio bloko maisos reiksme 
     time_t timestamp;           //Laiko zyma 
-    //int version;              //Blokų grandines duomenu strukturos versija
+    int version = 1;              //Blokų grandines duomenu strukturos versija
                                 // Merkel Root Hash
     int nonce;                  //Atsitiktinis skaicius, naudojamas tinkamo sudetingumo bloko maisos reiksmei gauti 
     int difficulty_target = 2;  // Bloko maisos reiksmes sudetingumas 
@@ -75,9 +75,9 @@ class Blokas {
     // Konstruktorius
     Blokas() = default;
     Blokas(const string& id, const vector<Transakcija>& trans = {}, int nonce = 0,
-           const string& prev_hash = "")//, int versija = 1)
-        : bloko_id(id), transakcijos(trans), nonce(nonce) , timestamp(time(nullptr)),
-        prev_block_hash(prev_hash) {}//, version(versija) {}
+           const string& prev_hash = "")
+        : bloko_id(id), transakcijos(trans), nonce(nonce), timestamp(time(nullptr)),
+        prev_block_hash(prev_hash) {}
 
     // Destruktorius
     ~Blokas() {}
@@ -87,15 +87,14 @@ class Blokas {
     const vector<Transakcija>& getTransakcijos() const { return transakcijos; }
     string getPreviousBlockHash() const { return prev_block_hash; }
     const time_t& getTimestamp() const { return timestamp; }
+    int getVersion() const { return version; }
     int getNonce() const { return nonce; }
     void setNonce(int newNonce) { nonce = newNonce; }
-    //int getVersion() const { return version; }
     int getDifficultyTarget() const { return difficulty_target; }
 
     void setBlokoId(const string& id) { bloko_id = id; }
     void setPreviousBlockHash(const string& prevHash) { prev_block_hash = prevHash; }
     void setTimestamp(time_t ts) { timestamp = ts; }
-    //void setVersion(int versija) { version = versija; }
 };
 
 string randomVardas() {
@@ -359,6 +358,7 @@ void generuotiBlokus(vector<Blokas>& blokai, vector<Transakcija>& transakcijos, 
             failiukas << "Bloko ID: " << naujas_blokas.getBlokoId() << endl;
             failiukas << "Previous Block Hash: " << naujas_blokas.getPreviousBlockHash() << endl;
             failiukas << "Timestamp: " << ctime(&timestamp);
+            failiukas << "Version: " << naujas_blokas.getVersion() << endl;
             failiukas << "Nonce: " << naujas_blokas.getNonce() << endl;
             failiukas << "Difficulty Target: " << naujas_blokas.getDifficultyTarget() << endl;
             failiukas << "Transakcijos: " << endl;
@@ -462,7 +462,7 @@ void rastiBloka(const vector<Blokas>& blokai, const string& id) {
         cout << "Bloko ID: " << blokas.getBlokoId() << endl;
         cout << "Previous Block Hash: " << blokas.getPreviousBlockHash() << endl; 
         cout << "Timestamp: " << ctime(&blokas.getTimestamp()); 
-        //cout << "Version: " << blokas.getVersion() << endl; 
+        cout << "Version: " << blokas.getVersion() << endl; 
         cout << "Nonce: " << blokas.getNonce() << endl;
         cout << "Difficulty Target: " << blokas.getDifficultyTarget() << endl; 
         /*cout << "Transakcijos:" << endl;
