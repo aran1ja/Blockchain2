@@ -63,7 +63,13 @@ class Blokas {
     private:
     string bloko_id;
     vector<Transakcija> transakcijos;
-    int nonce;
+    
+    string prev_block_hash;   //Ankstesnio bloko maisos reiksme 
+    time_t timestamp;       //Laiko zyma 
+    int version;            //Blokų grandines duomenu strukturos versija
+                            // Merkel Root Hash
+    int nonce;              //Atsitiktinis skaicius, naudojamas tinkamo sudetingumo bloko maisos reiksmei gauti 
+    int difficulty_target;   // Bloko maisos reiksmes sudetingumas 
 
     public:
     // Konstruktorius
