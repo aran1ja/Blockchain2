@@ -69,13 +69,15 @@ class Blokas {
     int version;            //Blokų grandines duomenu strukturos versija
                             // Merkel Root Hash
     int nonce;              //Atsitiktinis skaicius, naudojamas tinkamo sudetingumo bloko maisos reiksmei gauti 
-    int difficulty_target;   // Bloko maisos reiksmes sudetingumas 
+    int difficulty_target = 2;   // Bloko maisos reiksmes sudetingumas 
 
     public:
     // Konstruktorius
     Blokas() = default;
-    Blokas(const string& id, const vector<Transakcija>& trans = {}, int nonce = 0)
-        : bloko_id(id), transakcijos(trans), nonce(nonce) {}
+    Blokas(const string& id, const vector<Transakcija>& trans = {}, int nonce = 0,
+           const string& prev_hash = "", int versija = 1)
+        : bloko_id(id), transakcijos(trans), nonce(nonce), prev_block_hash(prev_hash), 
+        timestamp(time(nullptr)), version(versija) {}
 
     // Destruktorius
     ~Blokas() {}
@@ -83,15 +85,27 @@ class Blokas {
     // Getteriai ir setteriai
     string getBlokoId() const { return bloko_id; }
     const vector<Transakcija>& getTransakcijos() const { return transakcijos; }
+    string getPreviousBlockHash() const { return prev_block_hash; }
+    time_t getTimestamp() const { return timestamp; }
     int getNonce() const { return nonce; }
     void setNonce(int newNonce) { nonce = newNonce; }
+    int getVersion() const { return version; }
+    int getDifficultyTarget() const { return difficulty_target; }
 
     void setBlokoId(const string& id) {
         bloko_id = id;
     }
 
-    void setTransakcijos(const vector<Transakcija>&& trans) {
-        transakcijos = move(trans); 
+    void setPreviousBlockHash(const string& prevHash) {
+        prev_block_hash = prevHash;
+    }
+
+    void setTimestamp(time_t ts) {
+        timestamp = ts;
+    }
+
+    void setVersion(int versija) {
+        version = versija;
     }
 };
 
