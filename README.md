@@ -304,3 +304,10 @@ Skaičiavimas: 6418 - 3736 + 8251 - 5658 + 2548 + 7614 + 3634 - 1396 + 3973 + 30
 Taigi matome, kad balansas yra atnaujinamas tik tada, kad transakcijos yra įtrauktos į blokus.
 
 ## 7. Transakcijų ir blokų atspausdinimas
+Užduotis: sukurkite funkcijas, kurios leidžia atspausdinti bet kurią transakciją ir bloką. 
+Tam tikslui sukuriau dvi funkcijas: rastiTransakcija() ir rastiBloka().
+- rastiTransakcija() leidžia vartotojui rasti bet kokią norimą transakciją pagal transakcijos unikalųjį kodą. Net ir tas transakcijas, kurios nėra įtrauktos į blokus. Išrašoma visa transakcijos informacija.
+- rastiBloka() leidžia vartotojui rasti bet kokią norimą bloką pagal bloko unikalųjį kodą. Išrašoma visa bloko informacija.
+
+## 8. OOP praktikos
+Tam, kad kodas būtų saugus, panaudojau enkapsuliavimą, konstrukrius ir RAII idiomą. Pavyzdžius galima pamatyti 1, 2 ir 3 užduočių aprašymuose. Ten nurodytos klasės, kuriose buvo panaudotos OOP praktikos.
