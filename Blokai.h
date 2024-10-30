@@ -64,9 +64,9 @@ class Blokas {
     string bloko_id;
     vector<Transakcija> transakcijos;
     
-    string prev_block_hash;   //Ankstesnio bloko maisos reiksme 
+    //string prev_block_hash;   //Ankstesnio bloko maisos reiksme 
     time_t timestamp;       //Laiko zyma 
-    int version;            //Blokų grandines duomenu strukturos versija
+    //int version;            //Blokų grandines duomenu strukturos versija
                             // Merkel Root Hash
     int nonce;              //Atsitiktinis skaicius, naudojamas tinkamo sudetingumo bloko maisos reiksmei gauti 
     int difficulty_target = 2;   // Bloko maisos reiksmes sudetingumas 
@@ -74,10 +74,10 @@ class Blokas {
     public:
     // Konstruktorius
     Blokas() = default;
-    Blokas(const string& id, const vector<Transakcija>& trans = {}, int nonce = 0,
-           const string& prev_hash = "", int versija = 1)
-        : bloko_id(id), transakcijos(trans), nonce(nonce), prev_block_hash(prev_hash), 
-        timestamp(time(nullptr)), version(versija) {}
+    Blokas(const string& id, const vector<Transakcija>& trans = {}, int nonce = 0)
+           //const string& prev_hash = "", int versija = 1)
+        : bloko_id(id), transakcijos(trans), nonce(nonce) , timestamp(time(nullptr)) {}
+        //prev_block_hash(prev_hash), version(versija) {}
 
     // Destruktorius
     ~Blokas() {}
@@ -85,28 +85,28 @@ class Blokas {
     // Getteriai ir setteriai
     string getBlokoId() const { return bloko_id; }
     const vector<Transakcija>& getTransakcijos() const { return transakcijos; }
-    string getPreviousBlockHash() const { return prev_block_hash; }
-    time_t getTimestamp() const { return timestamp; }
+    //string getPreviousBlockHash() const { return prev_block_hash; }
+    const time_t& getTimestamp() const { return timestamp; }
     int getNonce() const { return nonce; }
     void setNonce(int newNonce) { nonce = newNonce; }
-    int getVersion() const { return version; }
+    //int getVersion() const { return version; }
     int getDifficultyTarget() const { return difficulty_target; }
 
     void setBlokoId(const string& id) {
         bloko_id = id;
     }
 
-    void setPreviousBlockHash(const string& prevHash) {
-        prev_block_hash = prevHash;
-    }
+    //void setPreviousBlockHash(const string& prevHash) {
+    //    prev_block_hash = prevHash;
+    //}
 
     void setTimestamp(time_t ts) {
         timestamp = ts;
     }
 
-    void setVersion(int versija) {
-        version = versija;
-    }
+    //void setVersion(int versija) {
+    //    version = versija;
+    //}
 };
 
 string randomVardas() {
@@ -312,31 +312,6 @@ void atnaujintiTransakcijuFaila(const vector<Transakcija>& likusios_transakcijos
 
 const int DifficultyTarget = 2;
 
-/*int pridetiNonce(Blokas& blokas) {
-    int nonce = 0;
-    string hashas;
-    const string pagr_id = blokas.getBlokoId();
-
-    auto start = chrono::high_resolution_clock::now();
-
-    do {
-        nonce++;
-        //blokas.setNonce(nonce);
-        hashas = hashFunkcija(pagr_id + to_string(nonce));
-
-        if (nonce % 10000 == 0) {
-            auto finish = chrono::high_resolution_clock::now();
-            auto skirtumas = chrono::duration_cast<chrono::seconds>(finish - start).count();
-            cout << "Nonce: " << nonce << ", Laikas: " << skirtumas << " s, hashas: " << hashas << endl;
-        }
-
-    } while (hashas.substr(0, DifficultyTarget) != string(DifficultyTarget, '0'));
-
-    blokas.setNonce(nonce);
-    blokas.setBlokoId(hashas);
-    return nonce;
-}*/
-
 pair<string, int> pridetiNonce(const string& id) {
     int nonce = 0;
     string hashas;
@@ -385,10 +360,14 @@ void generuotiBlokus(vector<Blokas>& blokai, vector<Transakcija>& transakcijos, 
             //pridetiNonce(naujas_blokas);
             failiukas << "Iskastas blokas " << (blokai.size() + 1) << endl;
 
+            time_t timestamp = naujas_blokas.getTimestamp();
+
             blokai.push_back(naujas_blokas);
             
             failiukas << "Bloko ID: " << naujas_blokas.getBlokoId() << endl;
+            failiukas << "Timestamp: " << ctime(&timestamp);
             failiukas << "Nonce: " << naujas_blokas.getNonce() << endl;
+            failiukas << "Difficulty Target: " << naujas_blokas.getDifficultyTarget() << endl;
             failiukas << "Transakcijos: " << endl;
             failiukas << "_______________________________________________________________________________________" << endl;
             failiukas << " " << endl;
@@ -488,15 +467,19 @@ void rastiBloka(const vector<Blokas>& blokai, const string& id) {
     if (it != blokai.end()) {
         const Blokas& blokas = *it; 
         cout << "Bloko ID: " << blokas.getBlokoId() << endl;
+        //cout << "Previous Block Hash: " << blokas.getPreviousBlockHash() << endl; 
+        cout << "Timestamp: " << ctime(&blokas.getTimestamp()); 
+        //cout << "Version: " << blokas.getVersion() << endl; 
         cout << "Nonce: " << blokas.getNonce() << endl;
-        cout << "Transakcijos:" << endl;
+        cout << "Difficulty Target: " << blokas.getDifficultyTarget() << endl; 
+        /*cout << "Transakcijos:" << endl;
         for (const auto& tr : blokas.getTransakcijos()) {
             cout << "  Transakcijos ID: " << tr.getTransakcijosId() << endl;
             cout << "  Siuntejo viesasis raktas: " << tr.getSiuntejoViesasisRaktas() << endl;
             cout << "  Gavejo viesasis raktas: " << tr.getGavejoViesasisRaktas() << endl;
             cout << "  Suma: " << tr.getSuma() << endl;
             cout << " " << endl;
-        }
+        }*/
     } else {
         cout << "Blokas su tokiu ID nerastas." << endl;
     }
