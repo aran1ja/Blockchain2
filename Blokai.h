@@ -84,8 +84,8 @@ class Blokas {
         bloko_id = id;
     }
 
-    void setTransakcijos(const std::vector<Transakcija>& trans) {
-        transakcijos = trans; 
+    void setTransakcijos(const vector<Transakcija>&& trans) {
+        transakcijos = move(trans); 
     }
 };
 
@@ -292,17 +292,50 @@ void atnaujintiTransakcijuFaila(const vector<Transakcija>& likusios_transakcijos
 
 const int DifficultyTarget = 2;
 
-int pridetiNonce(Blokas& blokas) {
+/*int pridetiNonce(Blokas& blokas) {
     int nonce = 0;
     string hashas;
+    const string pagr_id = blokas.getBlokoId();
+
+    auto start = chrono::high_resolution_clock::now();
+
     do {
         nonce++;
-        hashas = hashFunkcija(blokas.getBlokoId() + to_string(nonce));
+        //blokas.setNonce(nonce);
+        hashas = hashFunkcija(pagr_id + to_string(nonce));
+
+        if (nonce % 10000 == 0) {
+            auto finish = chrono::high_resolution_clock::now();
+            auto skirtumas = chrono::duration_cast<chrono::seconds>(finish - start).count();
+            cout << "Nonce: " << nonce << ", Laikas: " << skirtumas << " s, hashas: " << hashas << endl;
+        }
+
     } while (hashas.substr(0, DifficultyTarget) != string(DifficultyTarget, '0'));
 
     blokas.setNonce(nonce);
     blokas.setBlokoId(hashas);
     return nonce;
+}*/
+
+pair<string, int> pridetiNonce(const string& id) {
+    int nonce = 0;
+    string hashas;
+
+    auto start = chrono::high_resolution_clock::now();
+    
+    do {
+        hashas = hashFunkcija(id + to_string(nonce));
+        nonce++;
+
+        if (nonce % 10000 == 0) {
+            auto finish = chrono::high_resolution_clock::now();
+            auto skirtumas = chrono::duration_cast<chrono::seconds>(finish - start).count();
+            cout << "Nonce: " << nonce << ", Laikas: " << skirtumas << " s, Hashas: " << hashas << endl;
+        }
+
+    } while (hashas.substr(0, DifficultyTarget) != string(DifficultyTarget, '0'));
+
+    return {hashas, nonce};
 }
 
 void generuotiBlokus(vector<Blokas>& blokai, vector<Transakcija>& transakcijos, ofstream& failiukas) {
@@ -324,16 +357,16 @@ void generuotiBlokus(vector<Blokas>& blokai, vector<Transakcija>& transakcijos, 
             }
 
             Blokas naujas_blokas(hashFunkcija(sujungtasTransakcijuID), isrinktos_transakcijos, 0);
-            naujas_blokas.setTransakcijos(isrinktos_transakcijos);
             
-
+            pair<string, int> result = pridetiNonce(naujas_blokas.getBlokoId());
+            naujas_blokas.setBlokoId(result.first); 
+            naujas_blokas.setNonce(result.second);
+            
+            //pridetiNonce(naujas_blokas);
             failiukas << "Iskastas blokas " << (blokai.size() + 1) << endl;
 
-            pridetiNonce(naujas_blokas);
-
-            // Pridedame naujus blokus i bloku sarasa
             blokai.push_back(naujas_blokas);
-
+            
             failiukas << "Bloko ID: " << naujas_blokas.getBlokoId() << endl;
             failiukas << "Nonce: " << naujas_blokas.getNonce() << endl;
             failiukas << "Transakcijos: " << endl;
@@ -369,30 +402,25 @@ void issaugotiBalansus(vector<Vartotojas>& vartotojai) {
 void atnaujintiBalansus(vector<Vartotojas>& vartotojai, const vector<Blokas>& blokai) {
     unordered_map<string, int> vartotojuIndexai;
 
-    // Indeksuojame vartotojus pagal jų viešuosius raktus
     for (size_t i = 0; i < vartotojai.size(); ++i) {
         vartotojuIndexai[vartotojai[i].getViesasisRaktas()] = i;
     }
 
-    // Iteruojame per visus blokus
     for (const auto& blokas : blokai) {
-        // Iteruojame per bloką sudarančias transakcijas
         for (const auto& tr : blokas.getTransakcijos()) {
-            // Patikriname, ar siuntejas ir gavejas yra teisingi
             auto itSiuntejas = vartotojuIndexai.find(tr.getSiuntejoViesasisRaktas());
             auto itGavejas = vartotojuIndexai.find(tr.getGavejoViesasisRaktas());
 
             if (itSiuntejas != vartotojuIndexai.end() && itGavejas != vartotojuIndexai.end()) {
-                int siuntejasIndex = (*itSiuntejas).second; // Gauti siuntėjo indeksą
-                int gavejasIndex = (*itGavejas).second; // Gauti gavėjo indeksą
+                int siuntejasIndex = (*itSiuntejas).second; 
+                int gavejasIndex = (*itGavejas).second;
 
-                // Patikriname, ar siuntejas turi pakankamą balansą
                 if (vartotojai[siuntejasIndex].getBalansas() >= tr.getSuma()) {
                     vartotojai[siuntejasIndex].setBalansas(vartotojai[siuntejasIndex].getBalansas() - tr.getSuma()); 
                     vartotojai[gavejasIndex].setBalansas(vartotojai[gavejasIndex].getBalansas() + tr.getSuma()); 
                 } else {
-                    cout << "Klaida! Siuntejas " << vartotojai[siuntejasIndex].getVardas() << ", kurio viesasis raktas: " << tr.getSiuntejoViesasisRaktas() 
-                    << " neturi pakankamai lesu. Balansas: " << vartotojai[siuntejasIndex].getBalansas() << ". Suma: " << tr.getSuma() << endl;
+                    cout << "Klaida! Siuntejo " << vartotojai[siuntejasIndex].getVardas() << ", viesasis raktas: " << tr.getSiuntejoViesasisRaktas() 
+                    << " nepakankamas balansas: " << vartotojai[siuntejasIndex].getBalansas() << ". Suma: " << tr.getSuma() << endl;
                 }
             } else {
                 cout << "Klaida: Nezinomas siuntejas ar gavejas." << endl;
