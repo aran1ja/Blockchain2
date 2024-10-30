@@ -222,7 +222,7 @@ Vartotojų balansų atnaujinimui panaudojau dvi funkcijas: atnaujintiBalansus() 
 
 Naujas blokas yra pridėdamas prie blokų grandinės funkcijos generuotiBlokus() veikimo metu.
 
-## 5. Visų transakcijų vykdymas
+## 6. Visų transakcijų vykdymas
 Paleidžiau programą. Kadangi į blokus yra įtraukiamos tik tos transakcijos, kur siuntėjų balansai turi pakankamą balansą, iš 10000 transakcijų liko tik 8501, kurias galima įtraukti į blokus.
 
 ![изображение](https://github.com/user-attachments/assets/4afe9eef-37f1-4263-b6f7-2b3d8e94bf17)
@@ -303,4 +303,4 @@ Skaičiavimas: 6418 - 3736 + 8251 - 5658 + 2548 + 7614 + 3634 - 1396 + 3973 + 30
 
 Taigi matome, kad balansas yra atnaujinamas tik tada, kad transakcijos yra įtrauktos į blokus.
 
-
+## 7. Transakcijų ir blokų atspausdinimas
