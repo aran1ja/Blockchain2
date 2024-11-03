@@ -321,6 +321,29 @@ pair<string, int> pridetiNonce(const string& id) {
     return {hashas, nonce};
 }
 
+string merkleRoot(const vector<string>& transakcijosID) {
+    if (transakcijosID.empty()) return "";
+
+    vector<string> hashiukai = transakcijosID;
+
+    while (hashiukai.size() > 1) {
+        vector<string> naujiHashiukai;
+
+        for (size_t i = 0; i < hashiukai.size(); i += 2) {
+            if (i + 1 < hashiukai.size()) {
+                string sujungtasHash = hashiukai[i] + hashiukai[i + 1];
+                naujiHashiukai.push_back(hashFunkcija(sujungtasHash));
+            } else {
+                naujiHashiukai.push_back(hashiukai[i]);
+            }
+        }
+
+        hashiukai = naujiHashiukai; 
+    }
+
+    return hashiukai[0]; 
+}
+
 void generuotiBlokus(vector<Blokas>& blokai, vector<Transakcija>& transakcijos, ofstream& failiukas) {
     char pasirinkimas;
 
@@ -411,8 +434,8 @@ void atnaujintiBalansus(vector<Vartotojas>& vartotojai, const vector<Blokas>& bl
                     vartotojai[siuntejasIndex].setBalansas(vartotojai[siuntejasIndex].getBalansas() - tr.getSuma()); 
                     vartotojai[gavejasIndex].setBalansas(vartotojai[gavejasIndex].getBalansas() + tr.getSuma()); 
                 } else {
-                    cout << "Klaida! Siuntejo " << vartotojai[siuntejasIndex].getVardas() << ", viesasis raktas: " << tr.getSiuntejoViesasisRaktas() 
-                    << " nepakankamas balansas: " << vartotojai[siuntejasIndex].getBalansas() << ". Suma: " << tr.getSuma() << endl;
+                    //cout << "Klaida! Siuntejo " << vartotojai[siuntejasIndex].getVardas() << ", viesasis raktas: " << tr.getSiuntejoViesasisRaktas() 
+                    //<< " nepakankamas balansas: " << vartotojai[siuntejasIndex].getBalansas() << ". Suma: " << tr.getSuma() << endl;
                 }
             } else {
                 cout << "Klaida: Nezinomas siuntejas ar gavejas." << endl;
