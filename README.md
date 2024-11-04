@@ -131,7 +131,16 @@ Merkle Root Hash galima pamatyti bloko antraštėje:
   Jeigu transakcijos inforacijos maišos reikšmė nesutampa su transakcijos ID, tada terminale matomos klaidos pranešimai. Tačiau tokių klaidų terminale negaunu ir iš to galima padaryti išvadą, kad tikrinimo rezultatas yra sėkmingas - maišos reikšmė yra tokia pati, kaip transakcijos id.
 
 ## 3. "Decentralizuoto" blokų kasimo imitacija
-  
+Tam, kad imituoti "decentralizuotą" bloko kasimą padariau tris etapus: 
+- Sudaromi 5 blokai-kandidatai iš ~100 atsitiktinai pasirinktų transakcijų. Transakcijos blokuose gali kartojasi.
+- Atsitiktinai pasirinkamas vieną bloką-kandidatą ir bandau jį "kasti" tam tikrą laiką arba iki tam tikro bandymų skaičiaus. Jei per tą laiką blokas nebuvo "iškastas", pasirinkamas kitas blokas-kandidatas.
+- Jei nė vienas iš 5 blokų nebuvo "iškastas", pailginamas kasimo laikas arba bandymų skaičius ir pakartojamas procesas.
+
+Taigi, kiekvienam blokui-kandidatui leidžiama kastis 5s arba 100000 kartų. Jeigu tokiu būdu neiškastas joks blokas, tada padvigubinas laikas ir badymų skaičius ir bandama iš naujo. Pavyzdys:
+
+![image](https://github.com/user-attachments/assets/c0dc7682-0ffe-4687-92b1-4d7a51a7b246)
+
+
 ## 4. Papildomos užduotys
 
 
