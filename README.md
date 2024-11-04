@@ -28,7 +28,7 @@ Turinį sudaro:
    * "Generuojamos transakcijos..."     
    * Sugeneruotus vartotojus galima peržiūrėti faile "Vartotojai.txt", transakcijas - "Transakcijos.txt".
 8. Ant ekrano atsiras daug klaidų pranešimų - jos nurodo, kad yra netinkamų transakcijų, kur siuntėjų balansai yra nepakankami transakcijoms vykdyti.
-9. Ant ekrano atsiras
+9. Ant ekrano atsiras klausimas "Ar norite kasti blokus (1) ar imituoti 'decentralizuota' bloku kasima (2)?". Paspaudus 1 bus rodoma (kas bus paspaudus 2 žr. 12 punktą):
     * "Bloku generavimas prasideda..."
     * "Galima is kart paspausti keleta 't', kad iskasti keleta bloku."
     * Kiek kartų paspausite "t", tiek blokų ir bus generuojama. Blokai gali būti generuojami tol, kol yra neįtrauktų transakcijų.
@@ -40,6 +40,7 @@ Turinį sudaro:
     1. Ieskoti transakcijos pagal ID.
     2. Ieskoti bloko pagal ID.
     Bet koks kitas sakicius baigia programa.
+14. Jeigu 8 punkte paspaudėte 2, tai jums įsijungs blokų kasimas, kuris veiks tol, kol visi 5 blokai bus iškasti.
 
 Tai leidžia išrinkti ar norite gauti informacijos apie tam tikras transakcijas ir blokus. Jei nenorite jokios informacijos, bet koks paspaustas skaičius užbaigs programos veikimą.
 
@@ -149,7 +150,68 @@ Pavyzdys kada bandoma kasti blokus su Difficulty Target lygu 3:
 
 ### 1. UTXO modelio naudojimas vietoj sąskaitos modelio 
 ### 2. Lygiagretus blokų kasimo proceso realizavimas 
+Lygiagretų blokų kasimą realizavau su OpenMP (programavimo standartas, skirtas realizuoti lygiagretiesiems algoritmams bendros atminties kompiuteriuose). Įtraukiau OpenMP biblioteką: #include <omp.h>. Ir pamodifikavau generuotiBlokeliusKandidatus() funkciją. Kodas atrodo taip:
 
+     void generuotiBlokeliusKandidatus(vector<Blokas>& blokai, vector<Transakcija>& transakcijos, ofstream& failiukas, int laikoLimitas = 5, int bandymuLimitas = 100000) {
+         vector<Blokas> potencialusBlokai;
+         generuotiPotencialiusBlokus(potencialusBlokai, transakcijos);
+     
+         omp_set_num_threads(4); 
+     
+         bool iskasta = false;
+     
+         #pragma omp parallel for
+         for (int i = 0; i < 5; ++i) {
+             bool found = bandytiKastiBloka(potencialusBlokai[i], laikoLimitas, bandymuLimitas);
+             cout << "Bandoma kasti bloka-kandidata Nr. " << (i + 1) << endl;
+             if (found) {
+                 #pragma omp critical
+                 {
+                     blokai.push_back(potencialusBlokai[i]);
+                     failiukas << "Iskastas blokas " << blokai.size() << endl;
+                     iskasta = true; 
+                 }
+             }
+         }
+     
+         #pragma omp single
+         {
+             if (!iskasta) {
+                 laikoLimitas *= 2;
+                 bandymuLimitas *= 2;
+                 cout << "Nepavyko iskasti jokio bloko. Pailginamas laiko limitas iki " << laikoLimitas
+                      << " sekundziu ir bandymu limitas iki " << bandymuLimitas << "." << endl;
+     
+                 generuotiBlokeliusKandidatus(blokai, transakcijos, failiukas, laikoLimitas, bandymuLimitas);
+             }
+         }
+     }
+
+Funkcija omp_set_num_threads(4) nustato gijų kiekį, su kuriuo norima vykdyti skaičiavimus. Šiuo atveju yra 4.
+
+Tam, kad galima būtų paleisti kodą, reikia terminale parašyti 2 užklausas:
+* g++ -fopenmp -o Blokai Blokai.cpp
+* ./Blokai.exe
+
+Skaičiavimų rezultatai:
+
+1 gija:
+
+![image](https://github.com/user-attachments/assets/edad5f98-bffb-499a-9b73-868333a2ca7c)
+
+2 gijos:
+
+![image](https://github.com/user-attachments/assets/9e6b524c-9e7f-4945-ab6e-8faaea0c674c)
+
+4 gijos: 
+
+![image](https://github.com/user-attachments/assets/01658d74-6679-465e-b5a2-8ad29f93f1ad)
+
+8 gijos:
+
+![image](https://github.com/user-attachments/assets/7086ee61-946a-4551-8633-4428126f1d5a)
+
+Galima pastebėti, kad anksčiau (3 užduotyje) blokai-kandidatai buvo surašyti pagal tvarką, o dabar chaotiškai. Taip atsitinka dėl to, kad programa bando lygiagrečiai iškasti kelis blokus ir todėl rašo apie blokus informacija tokiu būdu.
 
 # Papildomi reikalavimai
 
