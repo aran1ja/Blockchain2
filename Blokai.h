@@ -498,17 +498,46 @@ void atnaujintiBalansus(vector<Vartotojas>& vartotojai, vector<Blokas>& blokai) 
                 int siuntejasIndex = (*itSiuntejas).second; 
                 int gavejasIndex = (*itGavejas).second;
 
+                // Patikrinti, ar siuntejas turi pakankamai UTXO sumai
                 if (vartotojai[siuntejasIndex].GetBalance() >= it->getSuma()) {
-                    vartotojai[siuntejasIndex].setBalansas(vartotojai[siuntejasIndex].GetBalance() - it->getSuma()); 
-                    vartotojai[gavejasIndex].setBalansas(vartotojai[gavejasIndex].GetBalance() + it->getSuma()); 
-                    it++;
+                    // Surasti ir panaudoti tinkamus UTXO
+                    int sumaPanaudota = 0;
+                    vector<string> naudojamiUTXO;
+
+                    for (const auto& utxo : vartotojai[siuntejasIndex].GetUtxos()) {
+                        sumaPanaudota += utxo.suma;
+                        naudojamiUTXO.push_back(utxo.UTXO_id);
+                        if (sumaPanaudota >= it->getSuma()) break;
+                    }
+
+                    // Jei pakanka UTXO sumos, vykdyti transakcija
+                    if (sumaPanaudota >= it->getSuma()) {
+                        // Paaalinti panaudotus UTXO is siuntejo
+                        for (const auto& utxo_id : naudojamiUTXO) {
+                            vartotojai[siuntejasIndex].removeUTXO(utxo_id);
+                        }
+
+                        // Prideti nauja UTXO gavejui
+                        vartotojai[gavejasIndex].addUTXO(UTXO(it->getGavejoViesasisRaktas(), it->getSuma()));
+
+                        // Jei liko lesu, prideti graza siuntejui kaip nauja UTXO
+                        int grazosSuma = sumaPanaudota - it->getSuma();
+                        if (grazosSuma > 0) {
+                            vartotojai[siuntejasIndex].addUTXO(UTXO(it->getSiuntejoViesasisRaktas(), grazosSuma));
+                        }
+                        it++;
+                    } else {
+                        cout << "Klaida! Siuntejas " << vartotojai[siuntejasIndex].getVardas() << ", viesasis raktas: "
+                             << it->getSiuntejoViesasisRaktas() << " turi nepakankamai UTXO balansui: "
+                             << vartotojai[siuntejasIndex].GetBalance() << ". Suma: " << it->getSuma() << endl;
+                        it = transakcijos.erase(it);
+                    }
                 } else {
-                    cout << "Klaida! Siuntejo " << vartotojai[siuntejasIndex].getVardas() << ", viesasis raktas: " << it->getSiuntejoViesasisRaktas() 
-                    << " nepakankamas balansas: " << vartotojai[siuntejasIndex].GetBalance() << ". Suma: " << it->getSuma() << endl;
                     it = transakcijos.erase(it);
                 }
             } else {
                 cout << "Klaida: Nezinomas siuntejas ar gavejas." << endl;
+                it = transakcijos.erase(it);
             }
         }
     }

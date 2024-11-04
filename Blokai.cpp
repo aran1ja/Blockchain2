@@ -33,7 +33,7 @@ int main() {
             ekranas(blokai, transakcijos);
         } else if (rinktis == 2) {
             cout << "Imituojamas 'decentralizuotas' bloku kasimas..." << endl;
-            generuotiBlokeliusKandidatus(blokai, transakcijos, failiukas);
+            //generuotiBlokeliusKandidatus(blokai, transakcijos, failiukas);
             cout << "Atnaujinami balansai..." << endl;
             atnaujintiBalansus(vartotojai, blokai);
         }
