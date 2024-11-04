@@ -85,9 +85,35 @@ Merkle Root Hash galima pamatyti bloko antraštėje:
 ![image](https://github.com/user-attachments/assets/269dc7ff-9ccd-41ac-8a68-2e4dca7f9a83)
 
 ## 2. Transakcijų verifikavimas
+* Balanso tikrinimas: Jei siuntėjo balansas yra mažesnis už siunčiamą sumą, transakcija turi būti atmesta.
+Yra du atvejai kada tikrinamas siuntėjo balansas:
+   - Balansas tikrinamas iškart po transakcijos sukurimo.
+     
+   Programai pasileidus, atsiranda daug klaidų pranešimų. Jie nurodo, kad yra transakcijos, kurias neįmanoma vykdyti, nes siuntėjo balansas yra nepakankamas.
 
-- Balanso tikrinimas: Jei siuntėjo balansas yra mažesnis už siunčiamą sumą, transakcija turi būti atmesta.
-- Transakcijos maišos reikšmės tikrinimas: Patikrinkite, ar transakcijos informacijos maišos reikšmė sutampa su transakcijos ID.
+   ![image](https://github.com/user-attachments/assets/be3d5a26-e7a4-4801-979e-5eb1bbff7765)
+
+   Tada tokios transakcijos nėra įtraukiamos į transakcijų sąrašą tam, kad tokios transakcijos negalėtų būti įtrauktos į blokus. Pavyzdžiui, "Transakcijos.txt" įvedžiau transakcijos id ir patikrinau ar tame saraše yra transakcija su tokia id. Pagal nuotrauką žemiau matome, kad tokios transakcijos nėra (turėtų būti balta linija po dešine; matome tik vieną, nes man randa id tik vieną kartą - kurį įvedžiau pati).
+
+   ![image](https://github.com/user-attachments/assets/8170d29e-e137-43a6-82e6-31f0708aa99d)
+
+  Pavyzdys, kaip atrodytų linijos, jeigu būtų rasta keleta rezultatų su tuo pačiu id.
+
+  ![image](https://github.com/user-attachments/assets/12bd19e7-62bd-42c3-952c-8d6e10ed1783)
+
+
+   - Balansas tikrinamas po transakcijos įtraukimo į bloką ir jos vykdymo.
+
+   Į bloką yra įtraukiamos transakcijos, kur tas pats vartotojas gali daug kartų būti ir siuntėju, ir gavėju. Po kiekvienos tokios transakcijos tikrinamas vartotojo balansas. Jeigu kažkuriai transakcijai vykdyti jau neužtenka balanso, tada apie tai pranešama terminale:
+
+   ![image](https://github.com/user-attachments/assets/649f01e5-4b08-448e-9008-3a41bf3da8f6)
+
+  Pastebime priežastį, kodėl vartotojas Diana Butkus negali vykdyti transakcijos. Jos balansas yra 88, o prašoma suma yra 4190. Tokia transakcija nėra vykdoma - vartotojo balansas lieka 88 tuo atveju, jeigu vartotojas kituose transakcijose arba siuntė sumą, kuriai užtenka balanso, arba tapo gavėju. Vartotojo Diana Butkus atveju matome, kad daugiau nedalyvavo jokiose transakcijose ir jos atnaujintas balansas yra:
+
+  ![image](https://github.com/user-attachments/assets/ccd974c9-d1a5-4bc7-b363-63af43c458a8)
+
+  
+* Transakcijos maišos reikšmės tikrinimas: Patikrinkite, ar transakcijos informacijos maišos reikšmė sutampa su transakcijos ID.
 
 
 ## 3. "Decentralizuoto" blokų kasimo imitacija
