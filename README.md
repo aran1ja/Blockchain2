@@ -1,4 +1,4 @@
-# Supaprastintos blokų grandinės (blockchain) kūrimas
+# Supaprastintos blokų grandinės (blockchain) kūrimas - v0.2 versija
 Šios užduoties tikslas – sukurti supaprastintą blokų grandinę (angl. blockchain), kurios duomenų sluoksnio struktūra pavaizduota žemiau:
  ![изображение](https://github.com/user-attachments/assets/09277d27-b027-4176-a6b7-57964d0cdba5)
 
@@ -16,26 +16,6 @@ Antraštę sudaro:
   
 Turinį sudaro:
 * Visos bloko transakcijos.
-
-# Užduoties formuluotė
-Sukurkite "centralizuotą" blokų grandinę (blockchain) ir imituokite jos veikimą kuo realistiškiau. Preliminari veiksmų seka:
-1. Sugeneruokite ~1000 tinklo vartotojų, turinčių šiuos atributus:
-* vardą,
-* viešąjį raktą ( public_key ),
-* atsitiktinį valiutos balansą (pvz., nuo 100 iki 1000000 valiutos vienetų).
-2. Sugeneruokite ~10000 naujų transakcijų, kurios dar nėra įtrauktos į jokį bloką. Transakcijos struktūra turi turėti šiuos atributus:
-* transakcijos ID (kitų transakcijos laukų maišos reikšmė),
-* siuntėjas (jo viešasis raktas),
-* gavėjas (jo viešasis raktas),
-* suma.
-Transakcijų struktūrą galite tobulinti, pvz., vietoj sąskaitos modelio (angl. account model) galite naudoti UTXO modelį.
-3. Atsitiktinai pasirinkite 100 transakcijų iš transakcijų sąrašo ir pabandykite jas įtraukti į naują bloką.
-4. Realizuokite naujų blokų kasimo (angl. mining) procesą, naudojant Proof-of-Work (PoW) algoritmą. Tikslas – rasti naujo bloko maišos reikšmę, atitinkančią Difficulty Target reikalavimą (nulių skaičių maišos reikšmės pradžioje). Nulių skaičius priklauso nuo jūsų sukurtos maišos funkcijos.
-5. Suradus tinkamą naujo bloko maišos reikšmę:
-* ištrinkite į bloką įtrauktas transakcijas iš transakcijų sąrašo;
-* "įvykdykite" transakcijas, t.y. atnaujinkite vartotojų balansus;
-* pridėkite naują bloką prie blokų grandinės.
-6. Kartokite 3-5 žingsnius, kol yra neįtrauktų transakcijų. Taip pat galite kartoti 1-5 žingsnius, generuodami naujus vartotojus ir transakcijas.
 
 # Naudojimosi instrukcija
 1. GitHub'e paspauskite žalią mygtuką "Code".
@@ -62,6 +42,26 @@ Transakcijų struktūrą galite tobulinti, pvz., vietoj sąskaitos modelio (angl
     Bet koks kitas sakicius baigia programa.
 
 Tai leidžia išrinkti ar norite gauti informacijos apie tam tikras transakcijas ir blokus. Jei nenorite jokios informacijos, bet koks paspaustas skaičius užbaigs programos veikimą.
+
+# Užduoties formuluotė
+Sukurkite "centralizuotą" blokų grandinę (blockchain) ir imituokite jos veikimą kuo realistiškiau. Preliminari veiksmų seka:
+1. Sugeneruokite ~1000 tinklo vartotojų, turinčių šiuos atributus:
+* vardą,
+* viešąjį raktą ( public_key ),
+* atsitiktinį valiutos balansą (pvz., nuo 100 iki 1000000 valiutos vienetų).
+2. Sugeneruokite ~10000 naujų transakcijų, kurios dar nėra įtrauktos į jokį bloką. Transakcijos struktūra turi turėti šiuos atributus:
+* transakcijos ID (kitų transakcijos laukų maišos reikšmė),
+* siuntėjas (jo viešasis raktas),
+* gavėjas (jo viešasis raktas),
+* suma.
+Transakcijų struktūrą galite tobulinti, pvz., vietoj sąskaitos modelio (angl. account model) galite naudoti UTXO modelį.
+3. Atsitiktinai pasirinkite 100 transakcijų iš transakcijų sąrašo ir pabandykite jas įtraukti į naują bloką.
+4. Realizuokite naujų blokų kasimo (angl. mining) procesą, naudojant Proof-of-Work (PoW) algoritmą. Tikslas – rasti naujo bloko maišos reikšmę, atitinkančią Difficulty Target reikalavimą (nulių skaičių maišos reikšmės pradžioje). Nulių skaičius priklauso nuo jūsų sukurtos maišos funkcijos.
+5. Suradus tinkamą naujo bloko maišos reikšmę:
+* ištrinkite į bloką įtrauktas transakcijas iš transakcijų sąrašo;
+* "įvykdykite" transakcijas, t.y. atnaujinkite vartotojų balansus;
+* pridėkite naują bloką prie blokų grandinės.
+6. Kartokite 3-5 žingsnius, kol yra neįtrauktų transakcijų. Taip pat galite kartoti 1-5 žingsnius, generuodami naujus vartotojus ir transakcijas.
 
 # Atliktos užduoties formuluotė
 ## 1. Vartotojų generavimas
@@ -303,11 +303,13 @@ Skaičiavimas: 6418 - 3736 + 8251 - 5658 + 2548 + 7614 + 3634 - 1396 + 3973 + 30
 
 Taigi matome, kad balansas yra atnaujinamas tik tada, kad transakcijos yra įtrauktos į blokus.
 
-## 7. Transakcijų ir blokų atspausdinimas
+# Papildomi reikalavimai v0.1
+
+## 1. Transakcijų ir blokų atspausdinimas
 Užduotis: sukurkite funkcijas, kurios leidžia atspausdinti bet kurią transakciją ir bloką. 
 Tam tikslui sukuriau dvi funkcijas: rastiTransakcija() ir rastiBloka().
 - rastiTransakcija() leidžia vartotojui rasti bet kokią norimą transakciją pagal transakcijos unikalųjį kodą. Net ir tas transakcijas, kurios nėra įtrauktos į blokus. Išrašoma visa transakcijos informacija.
 - rastiBloka() leidžia vartotojui rasti bet kokią norimą bloką pagal bloko unikalųjį kodą. Išrašoma visa bloko informacija.
 
-## 8. OOP praktikos
+## 2. OOP praktikos
 Tam, kad kodas būtų saugus, panaudojau enkapsuliavimą, konstrukrius ir RAII idiomą. Pavyzdžius galima pamatyti 1, 2 ir 3 užduočių aprašymuose. Ten nurodytos klasės, kuriose buvo panaudotos OOP praktikos.
