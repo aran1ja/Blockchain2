@@ -257,6 +257,13 @@ void generuotiTransakcijas(vector<Transakcija>& transakcijos, vector<Vartotojas>
         // Transakcijos unikalusis kodas
         string transakcijos_id = hashFunkcija(siuntejo_viesasis_raktas + gavejo_viesasis_raktas + to_string(suma));
 
+        // Patikrinkimas, ar transakcijos ID atitinka transakcijos maisos reiksme
+        string patikrinimas = hashFunkcija(siuntejo_viesasis_raktas + gavejo_viesasis_raktas + to_string(suma));
+        if (transakcijos_id != patikrinimas) {
+            cout << "Klaida! Generuotas ID neatitinka transakcijos maisos reiksmes." << endl;
+            continue; 
+        } 
+
         // Patikriname, ar uztenka siuntejo balanso transakcijai vykdyti
         if (suma > vartotojai[siuntejas].getBalansas() || vartotojai[siuntejas].getBalansas() <= 0) {
             cout << "Klaida!" << endl;
