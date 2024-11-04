@@ -140,6 +140,10 @@ Taigi, kiekvienam blokui-kandidatui leidžiama kastis 5s arba 100000 kartų. Jei
 
 ![image](https://github.com/user-attachments/assets/c0dc7682-0ffe-4687-92b1-4d7a51a7b246)
 
+Pavyzdys kada bandoma kasti blokus su Difficulty Target lygu 3:
+
+![image](https://github.com/user-attachments/assets/3ad902fd-b455-43e7-a1e4-e5440d88f7bf)
+
 
 ## 4. Papildomos užduotys
 
