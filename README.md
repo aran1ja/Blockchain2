@@ -86,8 +86,8 @@ Merkle Root Hash galima pamatyti bloko antraštėje:
 
 ## 2. Transakcijų verifikavimas
 * Balanso tikrinimas: Jei siuntėjo balansas yra mažesnis už siunčiamą sumą, transakcija turi būti atmesta.
-Yra du atvejai kada tikrinamas siuntėjo balansas:
-   - Balansas tikrinamas iškart po transakcijos sukurimo.
+  Yra du atvejai kada tikrinamas siuntėjo balansas:
+  - Balansas tikrinamas iškart po transakcijos sukurimo.
      
    Programai pasileidus, atsiranda daug klaidų pranešimų. Jie nurodo, kad yra transakcijos, kurias neįmanoma vykdyti, nes siuntėjo balansas yra nepakankamas.
 
@@ -102,7 +102,7 @@ Yra du atvejai kada tikrinamas siuntėjo balansas:
   ![image](https://github.com/user-attachments/assets/12bd19e7-62bd-42c3-952c-8d6e10ed1783)
 
 
-   - Balansas tikrinamas po transakcijos įtraukimo į bloką ir jos vykdymo.
+  - Balansas tikrinamas po transakcijos įtraukimo į bloką ir jos vykdymo.
 
    Į bloką yra įtraukiamos transakcijos, kur tas pats vartotojas gali daug kartų būti ir siuntėju, ir gavėju. Po kiekvienos tokios transakcijos tikrinamas vartotojo balansas. Jeigu kažkuriai transakcijai vykdyti jau neužtenka balanso, tada apie tai pranešama terminale:
 
@@ -114,7 +114,21 @@ Yra du atvejai kada tikrinamas siuntėjo balansas:
 
   
 * Transakcijos maišos reikšmės tikrinimas: Patikrinkite, ar transakcijos informacijos maišos reikšmė sutampa su transakcijos ID.
+  
+ Tam, kad patikrinti ar transakcijos informacijos maišos reikšmė sutampa su transakcijos ID, parašiau tokį kodą:
 
+   
+        // Transakcijos unikalusis kodas
+        string transakcijos_id = hashFunkcija(siuntejo_viesasis_raktas + gavejo_viesasis_raktas + to_string(suma));
+      
+        // Patikrinkimas, ar transakcijos ID atitinka transakcijos maisos reiksme
+        string patikrinimas = hashFunkcija(siuntejo_viesasis_raktas + gavejo_viesasis_raktas + to_string(suma));
+        if (transakcijos_id != patikrinimas) {
+          cout << "Klaida! Generuotas ID neatitinka transakcijos maisos reiksmes." << endl;
+          continue; 
+        } 
+
+  Jeigu transakcijos inforacijos maišos reikšmė nesutampa su transakcijos ID, tada terminale matomos klaidos pranešimai. Tačiau tokių klaidų terminale negaunu ir iš to galima padaryti išvadą, kad tikrinimo rezultatas yra sėkmingas - maišos reikšmė yra tokia pati, kaip transakcijos id.
 
 ## 3. "Decentralizuoto" blokų kasimo imitacija
   
