@@ -108,13 +108,13 @@ class Vartotojas {
     private:
     string vardas;
     string viesasis_raktas;
-    int balansas;
+    vector<UTXO> utxos;  // UTXO sarasas vietoj balanso
 
     public:
     // Konstruktorius
     Vartotojas() = default;
-    Vartotojas(const string& vardas, const string& viesasis_raktas, int balansas) 
-        : vardas(vardas), viesasis_raktas(viesasis_raktas), balansas(balansas) {}
+    Vartotojas(const string& vardas, const string& viesasis_raktas) 
+        : vardas(vardas), viesasis_raktas(viesasis_raktas) {}
 
     // Destruktorius
     ~Vartotojas() {}
@@ -122,8 +122,34 @@ class Vartotojas {
     // Getteriai ir setteriai
     string getVardas() const { return vardas; }
     string getViesasisRaktas() const { return viesasis_raktas; }
-    int getBalansas() const { return balansas; }
-    void setBalansas(int newBalansas) { balansas = newBalansas; }
+    vector<UTXO>& getUTXOs() { return utxos; }
+
+    // Pridedamas naujas UTXO
+    void pridetiUTXO(const UTXO& utxo) { utxos.push_back(utxo); }
+
+    // Pasalinamas panaudotas UTXO
+    void pasalintiUTXO(const UTXO& utxo) {
+        auto it = remove(utxos.begin(), utxos.end(), utxo);
+        if (it != utxos.end()) utxos.erase(it, utxos.end());
+    }
+
+    // Skaiciuojamas bendras balansas pagal UTXO
+    int getBalansas() const {
+        int balansas = 0;
+        for (const auto& utxo : utxos) balansas += utxo.suma;
+        return balansas;
+    }
+};
+
+class UTXO {
+public:
+    string transakcijos_id;
+    int indeksas; // Isejimo indeksas transakcijoje
+    string viesasis_raktas; 
+    int suma; 
+
+    UTXO(const string& transakcijos_id, int indeksas, const string& viesasis_raktas, int suma)
+        : transakcijos_id(transakcijos_id), indeksas(indeksas), viesasis_raktas(viesasis_raktas), suma(suma) {}
 };
 
 class Transakcija {
@@ -544,7 +570,7 @@ void ekranas(const vector<Blokas>& blokai, const vector<Transakcija>& transakcij
         } else break;    
     }
 }
-
+/*
 pair<string, int> pridetiNonca(const string& id, int laikoLimitas, int bandymuLimitas) {
     int nonce = 0;
     string hashas;
@@ -603,7 +629,7 @@ void generuotiBlokeliusKandidatus(vector<Blokas>& blokai, vector<Transakcija>& t
     vector<Blokas> potencialusBlokai;
     generuotiPotencialiusBlokus(potencialusBlokai, transakcijos);
 
-    omp_set_num_threads(4); 
+    omp_set_num_threads(2); 
 
     bool iskasta = false;
 
@@ -636,3 +662,4 @@ void generuotiBlokeliusKandidatus(vector<Blokas>& blokai, vector<Transakcija>& t
         }
     }
 }
+*/
