@@ -125,6 +125,22 @@ class Vartotojas {
     void setBalansas(int newBalansas) { balansas = newBalansas; }
 };
 
+class TransakcijosIejimas {
+public:
+    string transakcijos_id;  // Praeitos transakcijos ID
+    int indeksas;            // Praeitos transakcijos indeksas
+
+    TransakcijosIejimas(const string& trans_id, int ind) : transakcijos_id(trans_id), indeksas(ind) {}
+};
+
+class TransakcijosIsvedimas {
+public:
+    string viesasis_raktas; // Gavejo viesas raktas
+    int suma;               // Ssuma
+
+    TransakcijosIsvedimas(const string& v_raktas, int s) : viesasis_raktas(v_raktas), suma(s) {}
+};
+
 class Transakcija {
     private:
     string transakcijos_id;
@@ -251,7 +267,7 @@ void generuotiTransakcijas(vector<Transakcija>& transakcijos, vector<Vartotojas>
 
         // Suma, kuri yra pervedama
         int suma;
-        suma = rand() % 10000 + 1; 
+        suma = rand() % 5000 + 1; 
 
         // Transakcijos unikalusis kodas
         string transakcijos_id = hashFunkcija(siuntejo_viesasis_raktas + gavejo_viesasis_raktas + to_string(suma));
@@ -309,7 +325,7 @@ void atnaujintiTransakcijuFaila(const vector<Transakcija>& likusios_transakcijos
 
     /////BLOKAI/////
 
-const int DifficultyTarget = 3;
+const int DifficultyTarget = 2;
 
 pair<string, int> pridetiNonce(const string& id) {
     int nonce = 0;
