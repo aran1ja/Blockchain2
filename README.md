@@ -147,7 +147,8 @@ Pavyzdys kada bandoma kasti blokus su Difficulty Target lygu 3:
 
 ## 4. Papildomos užduotys
 
-
+### 1. UTXO modelio naudojimas vietoj sąskaitos modelio 
+### 2. Lygiagretus blokų kasimo proceso realizavimas 
 
 
 # Papildomi reikalavimai
@@ -156,7 +157,50 @@ Pavyzdys kada bandoma kasti blokus su Difficulty Target lygu 3:
 Užduotis: sukurkite funkcijas, kurios leidžia atspausdinti bet kurią transakciją ir bloką. 
 Tam tikslui sukuriau dvi funkcijas: rastiTransakcija() ir rastiBloka().
 - rastiTransakcija() leidžia vartotojui rasti bet kokią norimą transakciją pagal transakcijos unikalųjį kodą. Net ir tas transakcijas, kurios nėra įtrauktos į blokus. Išrašoma visa transakcijos informacija.
+
+  ![image](https://github.com/user-attachments/assets/f044e82b-f9dd-427f-b7d7-fe8a134e4d77)
+
 - rastiBloka() leidžia vartotojui rasti bet kokią norimą bloką pagal bloko unikalųjį kodą. Išrašoma visa bloko informacija.
 
+  ![image](https://github.com/user-attachments/assets/f6819a58-b0f5-4d39-974a-9e6a6105f48d)
+
+
 ## 2. OOP praktikos
-Tam, kad kodas būtų saugus, panaudojau enkapsuliavimą, konstrukrius ir RAII idiomą. Pavyzdžius galima pamatyti 1, 2 ir 3 užduočių aprašymuose. Ten nurodytos klasės, kuriose buvo panaudotos OOP praktikos.
+Tam, kad kodas būtų saugus, panaudojau enkapsuliavimą, konstrukrius ir RAII idiomą. OOP praktikos buvo panaudotos kuriant klases, pavyzdžiui:
+
+     class Transakcija {
+         private:
+         string transakcijos_id;
+         string siuntejo_viesasis_raktas;
+         string gavejo_viesasis_raktas;
+         int suma;
+     
+         public:
+         // Konstruktorius
+         Transakcija() = default;
+         Transakcija(const string& transakcijos_id, const string& siuntejo_viesasis_raktas, 
+                     const string& gavejo_viesasis_raktas, int suma) 
+             : transakcijos_id(transakcijos_id), siuntejo_viesasis_raktas(siuntejo_viesasis_raktas), 
+               gavejo_viesasis_raktas(gavejo_viesasis_raktas), suma(suma) {}
+         
+         // Destruktorius
+         ~Transakcija() {}
+     
+         // Getteriai ir setteriai
+         string getTransakcijosId() const { return transakcijos_id; }
+         string getSiuntejoViesasisRaktas() const { return siuntejo_viesasis_raktas; }
+         string getGavejoViesasisRaktas() const { return gavejo_viesasis_raktas; }
+         int getSuma() const { return suma; }
+     
+     };
+
+Pavyzdys kode:
+
+         for (const auto& transakcija : transakcijos) {
+              failas << "Transakcijos ID: " << transakcija.getTransakcijosId() << endl;
+              failas << "Siuntejo viesasis raktas: " << transakcija.getSiuntejoViesasisRaktas() << endl;
+              failas << "Gavejo viesasis raktas: " << transakcija.getGavejoViesasisRaktas() << endl;
+              failas << "Suma: " << transakcija.getSuma() << endl;
+              failas << "" << endl;
+          }
+
