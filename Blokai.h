@@ -556,3 +556,33 @@ void generuotiKandidatus(vector<vector<Transakcija>>& blokai_kandidatai, vector<
         blokai_kandidatai.push_back(blokas);
     }
 }
+
+bool bandytiKastiBloka(vector<Transakcija>& blokas, int maxBandymu, int maxLaikas) {
+    string merkle_root = merkleRoot({blokas.begin(), blokas.end()}); 
+
+    int nonce = 0;
+    auto start = chrono::high_resolution_clock::now();
+    while (nonce < maxBandymu) {
+        string hashas = hashFunkcija(merkle_root + to_string(nonce));
+        if (hashas.substr(0, DifficultyTarget) == string(DifficultyTarget, '0')) {
+            cout << "Blokas sekmingai iskastas. Hashas: " << hashas << ", Nonce: " << nonce << endl;
+            return true;
+        }
+        nonce++;
+
+        // Patikrinkime ar nepasibaige laikas
+        auto end = chrono::high_resolution_clock::now();
+        int sek = chrono::duration_cast<chrono::seconds>(end - start).count();
+        if (sek >= maxLaikas) {
+            cout << "Pasiektas maksimalus laikas: " << maxLaikas << " sekundziu. Blokas neiskastas." << endl;
+            return false;
+        }
+    }
+    cout << "Pasiektas maksimalus bandymu skaicius: " << maxBandymu << ". Blokas neiskastas." << endl;
+    return false;
+}
+
+void kasiame(vector<Transakcija>& transakcijos) {
+    vector<vector<Transakcija>> blokai_kandidatai;
+    generuotiKandidatus(blokai_kandidatai, transakcijos);
+}

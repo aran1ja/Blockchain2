@@ -8,7 +8,6 @@ int main() {
     vector<Blokas> blokai;
     char pasirinkimas;
 
-    
     cout << "Ar norite generuoti naujus vartotojus, transakcijas? (t/n): ";
     cin >> pasirinkimas;
 
@@ -27,6 +26,8 @@ int main() {
         cout << "Atnaujinami balansai..." << endl;
         atnaujintiBalansus(vartotojai, blokai);
         ekranas(blokai, transakcijos);
+        cout << "Imituojamas 'decentralizuotas' blokų kasimas..." << endl;
+        kasiame(transakcijos);
 
         fail.close();
         failas.close();
