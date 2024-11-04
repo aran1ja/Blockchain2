@@ -12,109 +12,6 @@
 #include <unordered_map>      
 using namespace std;
 
-class Vartotojas {
-    private:
-    string vardas;
-    string viesasis_raktas;
-    int balansas;
-
-    public:
-    // Konstruktorius
-    Vartotojas() = default;
-    Vartotojas(const string& vardas, const string& viesasis_raktas, int balansas) 
-        : vardas(vardas), viesasis_raktas(viesasis_raktas), balansas(balansas) {}
-
-    // Destruktorius
-    ~Vartotojas() {}
-
-    // Getteriai ir setteriai
-    string getVardas() const { return vardas; }
-    string getViesasisRaktas() const { return viesasis_raktas; }
-    int getBalansas() const { return balansas; }
-    void setBalansas(int newBalansas) { balansas = newBalansas; }
-};
-
-class Transakcija {
-    private:
-    string transakcijos_id;
-    string siuntejo_viesasis_raktas;
-    string gavejo_viesasis_raktas;
-    int suma;
-
-    public:
-    // Konstruktorius
-    Transakcija() = default;
-    Transakcija(const string& transakcijos_id, const string& siuntejo_viesasis_raktas, 
-                const string& gavejo_viesasis_raktas, int suma) 
-        : transakcijos_id(transakcijos_id), siuntejo_viesasis_raktas(siuntejo_viesasis_raktas), 
-          gavejo_viesasis_raktas(gavejo_viesasis_raktas), suma(suma) {}
-    
-    // Destruktorius
-    ~Transakcija() {}
-
-    // Getteriai ir setteriai
-    string getTransakcijosId() const { return transakcijos_id; }
-    string getSiuntejoViesasisRaktas() const { return siuntejo_viesasis_raktas; }
-    string getGavejoViesasisRaktas() const { return gavejo_viesasis_raktas; }
-    int getSuma() const { return suma; }
-};
-
-class Blokas {
-    private:
-    string bloko_id;
-    vector<Transakcija> transakcijos;
-    
-    string prev_block_hash;     // Ankstesnio bloko maisos reiksme 
-    time_t timestamp;           // Laiko zyma 
-    int version = 1;            // Blokų grandines duomenu strukturos versija
-    string merkle_root;         // Visų bloko transakcijų maišos reikšmė, gauta naudojant Merkle medį
-    int nonce;                  // Atsitiktinis skaicius, naudojamas tinkamo sudetingumo bloko maisos reiksmei gauti 
-    int difficulty_target = 2;  // Bloko maisos reiksmes sudetingumas 
-
-    public:
-    // Konstruktorius
-    Blokas() = default;
-    Blokas(const string& id, const vector<Transakcija>& trans = {}, int nonce = 0,
-           const string& prev_hash = "", const string& merkleRoot = "")
-        : bloko_id(id), transakcijos(trans), nonce(nonce), timestamp(time(nullptr)),
-        prev_block_hash(prev_hash), merkle_root(merkleRoot) {}
-
-    // Destruktorius
-    ~Blokas() {}
-
-    // Getteriai ir setteriai
-    string getBlokoId() const { return bloko_id; }
-    const vector<Transakcija>& getTransakcijos() const { return transakcijos; }
-    string getPreviousBlockHash() const { return prev_block_hash; }
-    const time_t& getTimestamp() const { return timestamp; }
-    int getVersion() const { return version; }
-    int getNonce() const { return nonce; }
-    void setNonce(int newNonce) { nonce = newNonce; }
-    int getDifficultyTarget() const { return difficulty_target; }
-    string getMerkleRoot() const { return merkle_root; }
-
-    void setBlokoId(const string& id) { bloko_id = id; }
-    void setPreviousBlockHash(const string& prevHash) { prev_block_hash = prevHash; }
-    void setTimestamp(time_t ts) { timestamp = ts; }
-    void setMerkleRoot(const string& merkleRoot) { merkle_root = merkleRoot; }
-};
-
-string randomVardas() {
-    vector<string> var = {"Tomas", "Andrius", "Algirdas", "Lukas", "Povilas", "Vilius", "Justinas", "Martynas", "Kestutis", "Juozas",
-    "Julius", "Rimvydas", "Darius", "Vytis", "Egidijus", "Karolis", "Simonas", "Deividas", "Dominykas", "Edgaras", "Aurimas", "Ricardas", 
-    "Paulius", "Arvydas", "Antanas", "Jurgis", "Adomas", "Gediminas", "Arturas", "Eimantas", "Raimondas", "Arnas", "Eugenijus", "Kostas", 
-    "Birute", "Irena", "Rasa", "Asta", "Lina", "Diana", "Jolanta", "Agne", "Egle", "Inga", "Dovile", "Gabija", "Greta", "Monika", "Vaida", 
-    "Viktorija", "Sandra", "Aurelija", "Rima", "Laima", "Neringa", "Renata", "Justina", "Kristina", "Agne", "Ieva", "Indre", "Marija"};
-
-    vector<string> pav = {"Kazlauskas", "Petrauskas", "Jankauskas", "Zukauskas", "Pavardenis", "Butkus", "Vasiliauskas",
-    "Urbonas", "Jonaitis", "Brazaitis", "Balciunas", "Tamulionis", "Kairys", "Saulys", "Grigas", "Vaitkus", "Stankevicius", "Dauksys", 
-    "Navickas", "Zilinskas", "Mockus", "Sernas", "Leipus","Vilkas", "Kavaliauskas", "Rimkus", "Matulis", "Sakalauskas", "Girdvainis", "Simutis"};
-    
-    string vard = var[rand() % var.size()];
-    string pavard = pav[rand() % pav.size()];
-    return vard + " " + pavard;
-}
-
 string hexPadarymas(bitset<256>& bitai) {
     stringstream ss;
 
@@ -205,6 +102,112 @@ string hashFunkcija(string simboliu_seka) {
         //cout << "Hash kodo atvaizdavimas hex pavidalu: " << hex << hexKodas << endl;
         return hexKodas;
 }
+
+class Vartotojas {
+    private:
+    string vardas;
+    string viesasis_raktas;
+    int balansas;
+
+    public:
+    // Konstruktorius
+    Vartotojas() = default;
+    Vartotojas(const string& vardas, const string& viesasis_raktas, int balansas) 
+        : vardas(vardas), viesasis_raktas(viesasis_raktas), balansas(balansas) {}
+
+    // Destruktorius
+    ~Vartotojas() {}
+
+    // Getteriai ir setteriai
+    string getVardas() const { return vardas; }
+    string getViesasisRaktas() const { return viesasis_raktas; }
+    int getBalansas() const { return balansas; }
+    void setBalansas(int newBalansas) { balansas = newBalansas; }
+};
+
+class Transakcija {
+    private:
+    string transakcijos_id;
+    string siuntejo_viesasis_raktas;
+    string gavejo_viesasis_raktas;
+    int suma;
+
+    public:
+    // Konstruktorius
+    Transakcija() = default;
+    Transakcija(const string& transakcijos_id, const string& siuntejo_viesasis_raktas, 
+                const string& gavejo_viesasis_raktas, int suma) 
+        : transakcijos_id(transakcijos_id), siuntejo_viesasis_raktas(siuntejo_viesasis_raktas), 
+          gavejo_viesasis_raktas(gavejo_viesasis_raktas), suma(suma) {}
+    
+    // Destruktorius
+    ~Transakcija() {}
+
+    // Getteriai ir setteriai
+    string getTransakcijosId() const { return transakcijos_id; }
+    string getSiuntejoViesasisRaktas() const { return siuntejo_viesasis_raktas; }
+    string getGavejoViesasisRaktas() const { return gavejo_viesasis_raktas; }
+    int getSuma() const { return suma; }
+
+};
+
+class Blokas {
+    private:
+    string bloko_id;
+    vector<Transakcija> transakcijos;
+    
+    string prev_block_hash;     // Ankstesnio bloko maisos reiksme 
+    time_t timestamp;           // Laiko zyma 
+    int version = 1;            // Blokų grandines duomenu strukturos versija
+    string merkle_root;         // Visų bloko transakcijų maišos reikšmė, gauta naudojant Merkle medį
+    int nonce;                  // Atsitiktinis skaicius, naudojamas tinkamo sudetingumo bloko maisos reiksmei gauti 
+    int difficulty_target = 2;  // Bloko maisos reiksmes sudetingumas 
+
+    public:
+    // Konstruktorius
+    Blokas() = default;
+    Blokas(const string& id, const vector<Transakcija>& trans = {}, int nonce = 0,
+           const string& prev_hash = "", const string& merkleRoot = "")
+        : bloko_id(id), transakcijos(trans), nonce(nonce), timestamp(time(nullptr)),
+        prev_block_hash(prev_hash), merkle_root(merkleRoot) {}
+
+    // Destruktorius
+    ~Blokas() {}
+
+    // Getteriai ir setteriai
+    string getBlokoId() const { return bloko_id; }
+    vector<Transakcija>& getTransakcijos() { return transakcijos; }
+    const vector<Transakcija>& getTransakcijos() const { return transakcijos; }
+    string getPreviousBlockHash() const { return prev_block_hash; }
+    const time_t& getTimestamp() const { return timestamp; }
+    int getVersion() const { return version; }
+    int getNonce() const { return nonce; }
+    void setNonce(int newNonce) { nonce = newNonce; }
+    int getDifficultyTarget() const { return difficulty_target; }
+    string getMerkleRoot() const { return merkle_root; }
+
+    void setBlokoId(const string& id) { bloko_id = id; }
+    void setPreviousBlockHash(const string& prevHash) { prev_block_hash = prevHash; }
+    void setTimestamp(time_t ts) { timestamp = ts; }
+    void setMerkleRoot(const string& merkleRoot) { merkle_root = merkleRoot; }
+};
+
+string randomVardas() {
+    vector<string> var = {"Tomas", "Andrius", "Algirdas", "Lukas", "Povilas", "Vilius", "Justinas", "Martynas", "Kestutis", "Juozas",
+    "Julius", "Rimvydas", "Darius", "Vytis", "Egidijus", "Karolis", "Simonas", "Deividas", "Dominykas", "Edgaras", "Aurimas", "Ricardas", 
+    "Paulius", "Arvydas", "Antanas", "Jurgis", "Adomas", "Gediminas", "Arturas", "Eimantas", "Raimondas", "Arnas", "Eugenijus", "Kostas", 
+    "Birute", "Irena", "Rasa", "Asta", "Lina", "Diana", "Jolanta", "Agne", "Egle", "Inga", "Dovile", "Gabija", "Greta", "Monika", "Vaida", 
+    "Viktorija", "Sandra", "Aurelija", "Rima", "Laima", "Neringa", "Renata", "Justina", "Kristina", "Agne", "Ieva", "Indre", "Marija"};
+
+    vector<string> pav = {"Kazlauskas", "Petrauskas", "Jankauskas", "Zukauskas", "Pavardenis", "Butkus", "Vasiliauskas",
+    "Urbonas", "Jonaitis", "Brazaitis", "Balciunas", "Tamulionis", "Kairys", "Saulys", "Grigas", "Vaitkus", "Stankevicius", "Dauksys", 
+    "Navickas", "Zilinskas", "Mockus", "Sernas", "Leipus","Vilkas", "Kavaliauskas", "Rimkus", "Matulis", "Sakalauskas", "Girdvainis", "Simutis"};
+    
+    string vard = var[rand() % var.size()];
+    string pavard = pav[rand() % pav.size()];
+    return vard + " " + pavard;
+}
+
 
     /////VARTOTOJAI/////
 
@@ -419,28 +422,34 @@ void issaugotiBalansus(vector<Vartotojas>& vartotojai) {
     balansu_failas.close();
 }
 
-void atnaujintiBalansus(vector<Vartotojas>& vartotojai, const vector<Blokas>& blokai) {
+void atnaujintiBalansus(vector<Vartotojas>& vartotojai, vector<Blokas>& blokai) {
     unordered_map<string, int> vartotojuIndexai;
 
-    for (size_t i = 0; i < vartotojai.size(); ++i) {
+    for (size_t i = 0; i < vartotojai.size(); i++) {
         vartotojuIndexai[vartotojai[i].getViesasisRaktas()] = i;
     }
 
-    for (const auto& blokas : blokai) {
-        for (const auto& tr : blokas.getTransakcijos()) {
-            auto itSiuntejas = vartotojuIndexai.find(tr.getSiuntejoViesasisRaktas());
-            auto itGavejas = vartotojuIndexai.find(tr.getGavejoViesasisRaktas());
+    for (auto& blokas : blokai) {
+        auto& transakcijos = blokas.getTransakcijos();
+
+        for (auto it = transakcijos.begin(); it != transakcijos.end(); ) {
+            auto itSiuntejas = vartotojuIndexai.find(it->getSiuntejoViesasisRaktas());
+            auto itGavejas = vartotojuIndexai.find(it->getGavejoViesasisRaktas());
 
             if (itSiuntejas != vartotojuIndexai.end() && itGavejas != vartotojuIndexai.end()) {
                 int siuntejasIndex = (*itSiuntejas).second; 
                 int gavejasIndex = (*itGavejas).second;
 
-                if (vartotojai[siuntejasIndex].getBalansas() >= tr.getSuma()) {
-                    vartotojai[siuntejasIndex].setBalansas(vartotojai[siuntejasIndex].getBalansas() - tr.getSuma()); 
-                    vartotojai[gavejasIndex].setBalansas(vartotojai[gavejasIndex].getBalansas() + tr.getSuma()); 
+                if (vartotojai[siuntejasIndex].getBalansas() >= it->getSuma()) {
+                    vartotojai[siuntejasIndex].setBalansas(vartotojai[siuntejasIndex].getBalansas() - it->getSuma()); 
+                    vartotojai[gavejasIndex].setBalansas(vartotojai[gavejasIndex].getBalansas() + it->getSuma()); 
+                    it++;
                 } else {
-                    //cout << "Klaida! Siuntejo " << vartotojai[siuntejasIndex].getVardas() << ", viesasis raktas: " << tr.getSiuntejoViesasisRaktas() 
-                    //<< " nepakankamas balansas: " << vartotojai[siuntejasIndex].getBalansas() << ". Suma: " << tr.getSuma() << endl;
+                    cout << "Klaida! Siuntejo " << vartotojai[siuntejasIndex].getVardas() << ", viesasis raktas: " << it->getSiuntejoViesasisRaktas() 
+                    << " nepakankamas balansas: " << vartotojai[siuntejasIndex].getBalansas() << ". Suma: " << it->getSuma() << endl;
+                    cout << "Transakcija bus istrinta is bloku saraso." << endl;
+                    cout << "" << endl;
+                    it = transakcijos.erase(it);
                 }
             } else {
                 cout << "Klaida: Nezinomas siuntejas ar gavejas." << endl;
