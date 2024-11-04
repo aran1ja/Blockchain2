@@ -208,7 +208,6 @@ string randomVardas() {
     return vard + " " + pavard;
 }
 
-
     /////VARTOTOJAI/////
 
 void generuotiVartotojus(vector<Vartotojas>& vartotojai, ofstream& fail) {
@@ -544,5 +543,16 @@ void ekranas(const vector<Blokas>& blokai, const vector<Transakcija>& transakcij
             cin >> bloko_id;
             rastiBloka(blokai, bloko_id);
         } else break;    
+    }
+}
+
+void generuotiKandidatus(vector<vector<Transakcija>>& blokai_kandidatai, vector<Transakcija>& transakcijos) {
+    for (int i = 0; i < 5; i++) {
+        vector<Transakcija> blokas;
+        for (int j = 0; j < 100; j++) {
+            int transakcjukes = rand() % transakcijos.size();
+            blokas.push_back(transakcijos[transakcjukes]);
+        }
+        blokai_kandidatai.push_back(blokas);
     }
 }
