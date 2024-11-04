@@ -9,7 +9,8 @@
 #include <vector>
 #include <algorithm>
 #include <numeric>   
-#include <unordered_map>      
+#include <unordered_map>
+#include <omp.h>      
 using namespace std;
 
 string hexPadarymas(bitset<256>& bitai) {
@@ -123,22 +124,6 @@ class Vartotojas {
     string getViesasisRaktas() const { return viesasis_raktas; }
     int getBalansas() const { return balansas; }
     void setBalansas(int newBalansas) { balansas = newBalansas; }
-};
-
-class TransakcijosIejimas {
-public:
-    string transakcijos_id;  // Praeitos transakcijos ID
-    int indeksas;            // Praeitos transakcijos indeksas
-
-    TransakcijosIejimas(const string& trans_id, int ind) : transakcijos_id(trans_id), indeksas(ind) {}
-};
-
-class TransakcijosIsvedimas {
-public:
-    string viesasis_raktas; // Gavejo viesas raktas
-    int suma;               // Ssuma
-
-    TransakcijosIsvedimas(const string& v_raktas, int s) : viesasis_raktas(v_raktas), suma(s) {}
 };
 
 class Transakcija {
@@ -568,7 +553,7 @@ pair<string, int> pridetiNonca(const string& id, int laikoLimitas, int bandymuLi
     while (nonce < bandymuLimitas) {
         hashas = hashFunkcija(id + to_string(nonce));
         
-        if (hashas.substr(0, 2) == "00") {
+        if (hashas.substr(0, 3) == "000") {
             return {hashas, nonce};
         }
         
@@ -618,25 +603,36 @@ void generuotiBlokeliusKandidatus(vector<Blokas>& blokai, vector<Transakcija>& t
     vector<Blokas> potencialusBlokai;
     generuotiPotencialiusBlokus(potencialusBlokai, transakcijos);
 
+    omp_set_num_threads(4); 
+
     bool iskasta = false;
 
+    #pragma omp parallel for
     for (int i = 0; i < 5; ++i) {
-        cout << "Bandoma kasti bloka-kandidata Nr. " << (i + 1) << endl;
+        bool found = bandytiKastiBloka(potencialusBlokai[i], laikoLimitas, bandymuLimitas);
 
-        if (bandytiKastiBloka(potencialusBlokai[i], laikoLimitas, bandymuLimitas)) {
-            blokai.push_back(potencialusBlokai[i]);
-            failiukas << "Iskastas blokas " << blokai.size() << endl;
-            iskasta = true;
-            break;
+    
+        cout << "Bandoma kasti bloka-kandidata Nr. " << (i + 1) << endl;
+        if (found) {
+            #pragma omp critical
+            {
+                blokai.push_back(potencialusBlokai[i]);
+                failiukas << "Iskastas blokas " << blokai.size() << endl;
+                iskasta = true; 
+            }
         }
     }
 
-    if (!iskasta) {
-        laikoLimitas *= 2;
-        bandymuLimitas *= 2;
-        cout << "Nepavyko iskasti jokio bloko. Pailginamas laiko limitas iki " << laikoLimitas
-             << " sekundziu ir bandymu limitas iki " << bandymuLimitas << "." << endl;
+    // Patikrinkite, ar kas nors buvo rastas
+    #pragma omp single
+    {
+        if (!iskasta) {
+            laikoLimitas *= 2;
+            bandymuLimitas *= 2;
+            cout << "Nepavyko iskasti jokio bloko. Pailginamas laiko limitas iki " << laikoLimitas
+                 << " sekundziu ir bandymu limitas iki " << bandymuLimitas << "." << endl;
 
-        generuotiBlokeliusKandidatus(blokai, transakcijos, failiukas, laikoLimitas, bandymuLimitas);
+            generuotiBlokeliusKandidatus(blokai, transakcijos, failiukas, laikoLimitas, bandymuLimitas);
+        }
     }
 }
