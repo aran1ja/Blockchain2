@@ -453,8 +453,6 @@ void atnaujintiBalansus(vector<Vartotojas>& vartotojai, vector<Blokas>& blokai) 
                 } else {
                     cout << "Klaida! Siuntejo " << vartotojai[siuntejasIndex].getVardas() << ", viesasis raktas: " << it->getSiuntejoViesasisRaktas() 
                     << " nepakankamas balansas: " << vartotojai[siuntejasIndex].getBalansas() << ". Suma: " << it->getSuma() << endl;
-                    cout << "Transakcija bus istrinta is bloku saraso." << endl;
-                    cout << "" << endl;
                     it = transakcijos.erase(it);
                 }
             } else {
@@ -546,43 +544,100 @@ void ekranas(const vector<Blokas>& blokai, const vector<Transakcija>& transakcij
     }
 }
 
-void generuotiKandidatus(vector<vector<Transakcija>>& blokai_kandidatai, vector<Transakcija>& transakcijos) {
+void generuotiPotencialiusBlokus(vector<Blokas>& potencialusBlokai, vector<Transakcija>& transakcijos) {
     for (int i = 0; i < 5; i++) {
-        vector<Transakcija> blokas;
+        vector<Transakcija> isrinktos_transakcijos;
         for (int j = 0; j < 100; j++) {
-            int transakcjukes = rand() % transakcijos.size();
-            blokas.push_back(transakcijos[transakcjukes]);
+            int randomIndex = rand() % transakcijos.size();
+            isrinktos_transakcijos.push_back(transakcijos[randomIndex]);
         }
-        blokai_kandidatai.push_back(blokas);
+        vector<string> transakcijuID;
+        for (const auto& tr : isrinktos_transakcijos) {
+            transakcijuID.push_back(tr.getTransakcijosId());
+        }
+
+        filtruotiTransakcijas(transakcijos, isrinktos_transakcijos);
+        
+        string merkle_root = merkleRoot(transakcijuID);
+        potencialusBlokai.push_back(Blokas(merkle_root, isrinktos_transakcijos, 0));
     }
 }
 
-bool bandytiKastiBloka(vector<Transakcija>& blokas, int maxBandymu, int maxLaikas) {
-    string merkle_root = merkleRoot({blokas.begin(), blokas.end()}); 
-
-    int nonce = 0;
+bool bandytiKastiBlokas(Blokas& blokas, int bandymuLimitas, int laikas) {
+    pair<string, int> result;
     auto start = chrono::high_resolution_clock::now();
-    while (nonce < maxBandymu) {
-        string hashas = hashFunkcija(merkle_root + to_string(nonce));
-        if (hashas.substr(0, DifficultyTarget) == string(DifficultyTarget, '0')) {
-            cout << "Blokas sekmingai iskastas. Hashas: " << hashas << ", Nonce: " << nonce << endl;
-            return true;
+    
+    for (int bandymai = 0; bandymai < bandymuLimitas; bandymai++) {
+        result = pridetiNonce(blokas.getBlokoId());
+        blokas.setBlokoId(result.first);
+        blokas.setNonce(result.second);
+        
+        auto pabaiga = chrono::high_resolution_clock::now();
+        auto skirt = chrono::duration_cast<chrono::seconds>(pabaiga - start).count();
+        if (skirt >= laikas) {
+            cout << "Laikas baigesi. Bandymu skaicius: " << bandymai << endl;
+            return false; 
         }
-        nonce++;
-
-        // Patikrinkime ar nepasibaige laikas
-        auto end = chrono::high_resolution_clock::now();
-        int sek = chrono::duration_cast<chrono::seconds>(end - start).count();
-        if (sek >= maxLaikas) {
-            cout << "Pasiektas maksimalus laikas: " << maxLaikas << " sekundziu. Blokas neiskastas." << endl;
-            return false;
+        
+        if (result.first.substr(0, DifficultyTarget) == string(DifficultyTarget, '0')) {
+            return true; 
         }
     }
-    cout << "Pasiektas maksimalus bandymu skaicius: " << maxBandymu << ". Blokas neiskastas." << endl;
-    return false;
+    return false; 
 }
 
-void kasiame(vector<Transakcija>& transakcijos) {
-    vector<vector<Transakcija>> blokai_kandidatai;
-    generuotiKandidatus(blokai_kandidatai, transakcijos);
+void generuotiBlokelius(vector<Blokas>& blokai, vector<Transakcija>& transakcijos, ofstream& failiukas) {
+    char pasirinkimas;
+    int bandymuLimitas = 100000; // Bandymu limitas
+    int laikas = 5; // Laiko limitas
+
+    do {
+        cout << "Liko " << transakcijos.size() << " transakciju." << endl;
+        cout << "Ar norite sukurti nauja bloka? (t/n): ";
+        cin >> pasirinkimas;
+
+        if (pasirinkimas == 't' && !transakcijos.empty()) {
+            vector<Blokas> potencialusBlokai;
+            
+            generuotiPotencialiusBlokus(potencialusBlokai, transakcijos);
+
+            bool iskasta = false;
+            for (auto& blokas : potencialusBlokai) {
+                if (bandytiKastiBlokas(blokas, bandymuLimitas, laikas)) {
+                    iskasta = true;
+                    blokai.push_back(blokas);
+                    failiukas << "Iskastas blokas " << (blokai.size()) << endl;
+                    time_t timestamp = blokas.getTimestamp();
+
+                    failiukas << "Bloko ID: " << blokas.getBlokoId() << endl;
+                    failiukas << "Previous Block Hash: " << blokas.getPreviousBlockHash() << endl;
+                    failiukas << "Timestamp: " << ctime(&timestamp);
+                    failiukas << "Version: " << blokas.getVersion() << endl;
+                    failiukas << "Merkle Root: " << blokas.getMerkleRoot() << endl;
+                    failiukas << "Nonce: " << blokas.getNonce() << endl;
+                    failiukas << "Difficulty Target: " << blokas.getDifficultyTarget() << endl;
+                    failiukas << "Transakcijos: " << endl;
+                    failiukas << "_______________________________________________________________________________________" << endl;
+                    failiukas << " " << endl;
+                    for (const auto& tr : blokas.getTransakcijos()) {
+                        failiukas << "Transakcijos ID: " << tr.getTransakcijosId() << endl;
+                        failiukas << "Siuntejo viesasis raktas: " << tr.getSiuntejoViesasisRaktas() << endl;
+                        failiukas << "Gavejo viesasis raktas: " << tr.getGavejoViesasisRaktas() << endl;
+                        failiukas << "Suma: " << tr.getSuma() << endl;
+                        failiukas << "" << endl;
+                    }
+
+                    break;
+                }
+            }
+
+            if (!iskasta) {
+                cout << "Negalima iskasti jokio bloko per nustatyta laika ar bandymus. Pabandykite vel." << endl;
+            }
+        }
+
+    } while (pasirinkimas == 't' && !transakcijos.empty());
+
+    failiukas.close();
 }
+
