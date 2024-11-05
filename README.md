@@ -1,5 +1,6 @@
 # Supaprastintos blokų grandinės (blockchain) kūrimas - v0.2 versija
 Šios užduoties tikslas – sukurti supaprastintą blokų grandinę (angl. blockchain), kurios duomenų sluoksnio struktūra pavaizduota žemiau:
+
  ![изображение](https://github.com/user-attachments/assets/09277d27-b027-4176-a6b7-57964d0cdba5)
 
 Svarbūs blokų grandinės aspektai:
