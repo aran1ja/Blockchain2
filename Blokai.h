@@ -284,49 +284,19 @@ void generuotiTransakcijas(vector<Transakcija>& transakcijos, vector<Vartotojas>
         int siuntejas;
         do {
             siuntejas = rand() % vartotojai.size();
-        } while (vartotojai[siuntejas].GetBalance() < 1);
+        } while (vartotojai[siuntejas].GetBalance() < 1); 
+
         string siuntejo_viesasis_raktas = vartotojai[siuntejas].getViesasisRaktas();
 
         int gavejas;
         do {
             gavejas = rand() % vartotojai.size();
-        } while (siuntejas == gavejas);
+        } while (siuntejas == gavejas); 
+
         string gavejo_viesasis_raktas = vartotojai[gavejas].getViesasisRaktas();
 
         int suma = rand() % 5000 + 1; 
-
-        if (suma > vartotojai[siuntejas].GetBalance()) {
-            continue; // Jei siuntėjas neturi pakankamai balanso, pereinam prie kitos transakcijos
-        }
-
-        // Parenkame UTXO objektus transakcijos sumai padengti
-        vector<string> panaudoti_utxo_ids;
-        int surinkta_suma = 0;
-        for (const auto& utxo : vartotojai[siuntejas].GetUtxos()) {
-            panaudoti_utxo_ids.push_back(utxo.UTXO_id);
-            surinkta_suma += utxo.suma;
-            if (surinkta_suma >= suma) break;
-        }
-
         string transakcijos_id = hashFunkcija(siuntejo_viesasis_raktas + gavejo_viesasis_raktas + to_string(suma));
-
-        // Patikrinkimas, ar transakcijos ID atitinka transakcijos maisos reiksme
-        string patikrinimas = hashFunkcija(siuntejo_viesasis_raktas + gavejo_viesasis_raktas + to_string(suma));
-        if (transakcijos_id != patikrinimas) {
-            cout << "Klaida! Generuotas ID neatitinka transakcijos maisos reiksmes." << endl;
-            continue; 
-        } 
-
-        // Pasalinamas panaudotus UTXO is siuntejo saraso
-        for (const auto& utxo_id : panaudoti_utxo_ids) {
-            vartotojai[siuntejas].removeUTXO(utxo_id);
-        }
-
-        // Pridedamas naujas UTXO gavejui
-        UTXO naujas_utxo(gavejo_viesasis_raktas, suma);
-        vartotojai[gavejas].addUTXO(naujas_utxo);
-
-        // Issaugoma transakcijos informacija
         transakcijos.push_back({transakcijos_id, siuntejo_viesasis_raktas, gavejo_viesasis_raktas, suma});
     }
 
@@ -469,7 +439,7 @@ void generuotiBlokus(vector<Blokas>& blokai, vector<Transakcija>& transakcijos, 
     failiukas.close();
 }
 
-void issaugotiBalansus(vector<Vartotojas>& vartotojai) {
+void issaugotiBalansus(const vector<Vartotojas>& vartotojai) {
     ofstream balansu_failas("NaujiVartotojuBalansai.txt");
     for (const auto& vartotojas : vartotojai) {
         balansu_failas << "Vardas: " << vartotojas.getVardas() << endl;
@@ -484,69 +454,67 @@ void issaugotiBalansus(vector<Vartotojas>& vartotojai) {
     balansu_failas.close();
 }
 
-void atnaujintiBalansus(vector<Vartotojas>& vartotojai, vector<Blokas>& blokai) {
+void atnaujintiBalansus(vector<Vartotojas>& vartotojai, const vector<Blokas>& blokai) {
     unordered_map<string, int> vartotojuIndexai;
 
+    // Sukurti vartotojų indeksu zemelapi
     for (size_t i = 0; i < vartotojai.size(); i++) {
         vartotojuIndexai[vartotojai[i].getViesasisRaktas()] = i;
     }
 
-    for (auto& blokas : blokai) {
-        auto& transakcijos = blokas.getTransakcijos();
+    for (const auto& blokas : blokai) {
+        cout << "Apdorojamas blokas: " << blokas.getBlokoId() << endl;
+        const auto& transakcijos = blokas.getTransakcijos();
 
-        for (auto it = transakcijos.begin(); it != transakcijos.end(); ) {
-            auto itSiuntejas = vartotojuIndexai.find(it->getSiuntejoViesasisRaktas());
-            auto itGavejas = vartotojuIndexai.find(it->getGavejoViesasisRaktas());
+        for (const auto& transakcija : transakcijos) {
+            auto itSiuntejas = vartotojuIndexai.find(transakcija.getSiuntejoViesasisRaktas());
+            auto itGavejas = vartotojuIndexai.find(transakcija.getGavejoViesasisRaktas());
 
             if (itSiuntejas != vartotojuIndexai.end() && itGavejas != vartotojuIndexai.end()) {
-                int siuntejasIndex = (*itSiuntejas).second; 
-                int gavejasIndex = (*itGavejas).second;
+                int siuntejasIndex = itSiuntejas->second;
+                int gavejasIndex = itGavejas->second;
 
-                // Patikrinti, ar siuntejas turi pakankamai UTXO sumai
-                if (vartotojai[siuntejasIndex].GetBalance() >= it->getSuma()) {
-                    // Surasti ir panaudoti tinkamus UTXO
-                    int sumaPanaudota = 0;
-                    vector<string> naudojamiUTXO;
+                // Surinkti UTXO patikrinimui, ar uztenka lesu
+                int sumaPanaudota = 0;
+                vector<string> naudojamiUTXO;
 
-                    for (const auto& utxo : vartotojai[siuntejasIndex].GetUtxos()) {
-                        sumaPanaudota += utxo.suma;
-                        naudojamiUTXO.push_back(utxo.UTXO_id);
-                        if (sumaPanaudota >= it->getSuma()) break;
+                // Siuntejo UTXO
+                for (const auto& utxo : vartotojai[siuntejasIndex].GetUtxos()) {
+                    sumaPanaudota += utxo.suma;
+                    naudojamiUTXO.push_back(utxo.UTXO_id);
+                    if (sumaPanaudota >= transakcija.getSuma()) break; // Nutraukti, jei pakankamai surinkta
+                }
+
+                // Jei pakankamai lesu, UTXO yra atnaujinamas
+                if (sumaPanaudota >= transakcija.getSuma()) {
+                    // Pasalinti tik panaudotus UTXO is siuntejo
+                    for (const auto& utxo_id : naudojamiUTXO) {
+                        vartotojai[siuntejasIndex].removeUTXO(utxo_id);
                     }
 
-                    // Jei pakanka UTXO sumos, vykdyti transakcija
-                    if (sumaPanaudota >= it->getSuma()) {
-                        // Paaalinti panaudotus UTXO is siuntejo
-                        for (const auto& utxo_id : naudojamiUTXO) {
-                            vartotojai[siuntejasIndex].removeUTXO(utxo_id);
-                        }
+                    // Prideti nauja UTXO gavejui
+                    vartotojai[gavejasIndex].addUTXO(UTXO(transakcija.getGavejoViesasisRaktas(), transakcija.getSuma()));
 
-                        // Prideti nauja UTXO gavejui
-                        vartotojai[gavejasIndex].addUTXO(UTXO(it->getGavejoViesasisRaktas(), it->getSuma()));
-
-                        // Jei liko lesu, prideti graza siuntejui kaip nauja UTXO
-                        int grazosSuma = sumaPanaudota - it->getSuma();
-                        if (grazosSuma > 0) {
-                            vartotojai[siuntejasIndex].addUTXO(UTXO(it->getSiuntejoViesasisRaktas(), grazosSuma));
-                        }
-                        it++;
-                    } else {
-                        cout << "Klaida! Siuntejas " << vartotojai[siuntejasIndex].getVardas() << ", viesasis raktas: "
-                             << it->getSiuntejoViesasisRaktas() << " turi nepakankamai UTXO balansui: "
-                             << vartotojai[siuntejasIndex].GetBalance() << ". Suma: " << it->getSuma() << endl;
-                        it = transakcijos.erase(it);
+                    // Jei liko grazos, prideti grazos suma kaip nauja UTXO siuntejui
+                    int grazosSuma = sumaPanaudota - transakcija.getSuma();
+                    if (grazosSuma > 0) {
+                        vartotojai[siuntejasIndex].addUTXO(UTXO(transakcija.getSiuntejoViesasisRaktas(), grazosSuma));
                     }
                 } else {
-                    it = transakcijos.erase(it);
+                    cout << "Klaida! Siuntejas " << vartotojai[siuntejasIndex].getVardas()
+                         << " turi nepakankamai UTXO: " << vartotojai[siuntejasIndex].GetBalance()
+                         << ". Suma: " << transakcija.getSuma() << endl;
+                    continue; 
                 }
             } else {
                 cout << "Klaida: Nezinomas siuntejas ar gavejas." << endl;
-                it = transakcijos.erase(it);
+                continue; 
             }
         }
     }
     issaugotiBalansus(vartotojai);
 }
+
 
 void rastiTransakcija(const vector<Transakcija>& transakcijos, const vector<Blokas>& blokai, const string& id) {
     auto it = find_if(transakcijos.begin(), transakcijos.end(), [&](const Transakcija& t) {
