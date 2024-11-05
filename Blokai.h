@@ -475,6 +475,10 @@ void issaugotiBalansus(vector<Vartotojas>& vartotojai) {
         balansu_failas << "Vardas: " << vartotojas.getVardas() << endl;
         balansu_failas << "Viesasis raktas: " << vartotojas.getViesasisRaktas() << endl;
         balansu_failas << "Balansas: " << vartotojas.GetBalance() << endl;
+        balansu_failas << "UTXOs: " << endl;
+        for (const auto& utxo : vartotojas.GetUtxos()) {
+            balansu_failas << "    " << utxo.UTXO_id << " - " << utxo.suma << endl;
+        }
         balansu_failas << "" << endl;
     }
     balansu_failas.close();
