@@ -149,6 +149,11 @@ Pavyzdys kada bandoma kasti blokus su Difficulty Target lygu 3:
 ## 4. Papildomos užduotys
 
 ### 1. UTXO modelio naudojimas vietoj sąskaitos modelio 
+Nepanaudotas transakcijos išvestis (UTXO) – tai skaitmeninės valiutos suma, kuri lieka po kriptovaliutos transakcijos. Galite įsivaizduoti tai kaip grąžą, kurią gaunate po pirkinio, tačiau tai nėra mažesnė valiutos nominalo dalis. Tai yra transakcijos išvestis duomenų bazėje, sukurta tinklo, siekiant leisti atlikti transakcijas, kai nereikia tikslios sumos. Nuskaityta iš https://www.investopedia.com/terms/u/utxo.asp
+
+
+
+
 ### 2. Lygiagretus blokų kasimo proceso realizavimas 
 Lygiagretų blokų kasimą realizavau su OpenMP (programavimo standartas, skirtas realizuoti lygiagretiesiems algoritmams bendros atminties kompiuteriuose). Įtraukiau OpenMP biblioteką: #include <omp.h>. Ir pamodifikavau generuotiBlokeliusKandidatus() funkciją. Kodas atrodo taip:
 
@@ -215,7 +220,12 @@ Galima pastebėti, kad anksčiau (3 užduotyje) blokai-kandidatai buvo surašyti
 
 # Papildomi reikalavimai
 
-## 1. Transakcijų ir blokų atspausdinimas
+## 1. Transakcijų ir blokų kūrimo procesas turi būti matomas
+Visas transakcijų ir blokų kūrimo procesas yra matomas konsolėje:
+
+![image](https://github.com/user-attachments/assets/95811919-447e-4b92-88b9-b9a4cb32b79c)
+
+## 2. Transakcijų ir blokų atspausdinimas
 Užduotis: sukurkite funkcijas, kurios leidžia atspausdinti bet kurią transakciją ir bloką. 
 Tam tikslui sukuriau dvi funkcijas: rastiTransakcija() ir rastiBloka().
 - rastiTransakcija() leidžia vartotojui rasti bet kokią norimą transakciją pagal transakcijos unikalųjį kodą. Net ir tas transakcijas, kurios nėra įtrauktos į blokus. Išrašoma visa transakcijos informacija.
@@ -227,7 +237,7 @@ Tam tikslui sukuriau dvi funkcijas: rastiTransakcija() ir rastiBloka().
   ![image](https://github.com/user-attachments/assets/f6819a58-b0f5-4d39-974a-9e6a6105f48d)
 
 
-## 2. OOP praktikos
+## 3. OOP praktikos
 Tam, kad kodas būtų saugus, panaudojau enkapsuliavimą, konstrukrius ir RAII idiomą. OOP praktikos buvo panaudotos kuriant klases, pavyzdžiui:
 
      class Transakcija {
