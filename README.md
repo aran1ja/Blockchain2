@@ -151,7 +151,80 @@ Pavyzdys kada bandoma kasti blokus su Difficulty Target lygu 3:
 ### 1. UTXO modelio naudojimas vietoj sąskaitos modelio 
 Nepanaudotas transakcijos išvestis (UTXO) – tai skaitmeninės valiutos suma, kuri lieka po kriptovaliutos transakcijos. Galite įsivaizduoti tai kaip grąžą, kurią gaunate po pirkinio, tačiau tai nėra mažesnė valiutos nominalo dalis. Tai yra transakcijos išvestis duomenų bazėje, sukurta tinklo, siekiant leisti atlikti transakcijas, kai nereikia tikslios sumos. Nuskaityta iš https://www.investopedia.com/terms/u/utxo.asp
 
+Tam, kad padaryti UTXO modelį, pridėjau UTXO klasę ir pakoregavau vartotojų klasę:
 
+     class UTXO {
+     public:
+         string vartotojo_duomenys;
+         string UTXO_id; 
+         int suma; 
+     
+         UTXO(const string& vartotojo_duomenys, int suma)
+             : vartotojo_duomenys(vartotojo_duomenys), suma(suma) { UTXO_id = hashFunkcija(vartotojo_duomenys + to_string(suma)); }
+     };
+     
+     class Vartotojas {
+         private:
+         string vardas;
+         string viesasis_raktas;
+         vector <UTXO> utxos;
+     
+         public:
+         // Konstruktorius
+         Vartotojas() = default;
+         Vartotojas(const string& vardas, const string& viesasis_raktas) 
+             : vardas(vardas), viesasis_raktas(viesasis_raktas) {}
+     
+         // Destruktorius
+         ~Vartotojas() {}
+     
+         // Getteriai ir setteriai
+         string getVardas() const { return vardas; }
+         string getViesasisRaktas() const { return viesasis_raktas; }
+         const vector<UTXO>& GetUtxos() const { return utxos; }
+     
+         int GetBalance() const {
+             int balansas = 0;
+             for (const auto& utxo : utxos) {
+                 balansas += utxo.suma;
+             }
+             return balansas;
+         }
+     
+         void addUTXO(const UTXO& utxo) { utxos.push_back(utxo); }
+         void removeUTXO(const string& UTXO_id) {
+             auto it = find_if(utxos.begin(), utxos.end(), [&UTXO_id](const UTXO& u) {
+                 return u.UTXO_id == UTXO_id; });
+             if (it != utxos.end()) {
+                 utxos.erase(it);
+             }
+         }
+     };
+
+Taip pat padariau reikiamus pakeitimus kode. Dabar pažiūrėkime kaip veikia UTXO modelis remiantis pavyzdžiu.
+
+Pradinis balansas:
+
+![image](https://github.com/user-attachments/assets/12fe768e-2063-4ce8-b06d-1ed5d5012fe7)
+
+Transakcija:
+
+![image](https://github.com/user-attachments/assets/3fa4cd27-e800-4d87-ae9d-4195b5829073)
+
+Naujas balansas:
+
+![image](https://github.com/user-attachments/assets/c4dab38c-7652-4b23-a58a-ddbfcd5e45aa)
+
+Galima pastebti, kad pradiniai UTXO buvo 3:
+
+    7b08fa4bcb0fc13581745784538434bcbe1d810d4cc85d6c2759d491e431eeea - 1459
+    e6c310c31e62ba06ad66e3d64f80f029c9cfb84066447d3f5d5a3c88ba0c9596 - 2596
+    3a0b0ca64383ec41e24b0af4ab2bbaec6be90b71dc812c576dfa12594066b2a6 - 4602
+
+Tai prilygsta vartotojo balansui 1459 + 2596 + 4602 = 8657. Transakcijos metu vartotojas turėjo išsiusti 2378. Kadangi pirmame UTXO neužteko balanso, jis paėmė du pirmus UTXO: 1459 + 2596 = 4055. Po transakcijos jam liko 4055 - 2378 = 1677. Todėl naujas balansas yra su 2 UTXO:
+
+    3a0b0ca64383ec41e24b0af4ab2bbaec6be90b71dc812c576dfa12594066b2a6 - 4602
+    499cabff306ad298a4dd1c2047abef3dd309f1ebce2ed1f5fac00c79640d7665 - 1677
 
 
 ### 2. Lygiagretus blokų kasimo proceso realizavimas 
